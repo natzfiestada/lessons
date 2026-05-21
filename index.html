@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sequences — Interactive Lesson</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Base ───────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e0f11;
+  --surface:#16181c;
+  --surface2:#1e2127;
+  --surface3:#252830;
+  --border:#2e3138;
+  --border2:#3a3e48;
+  --text:#f0f0ee;
+  --text2:#9a9da6;
+  --text3:#60636b;
+  --teal:#2dd4b0;
+  --teal-dim:#193d36;
+  --teal-mid:#1a8c75;
+  --amber:#f5c542;
+  --amber-dim:#3a2e08;
+  --amber-mid:#9c7c12;
+  --purple:#a78bfa;
+  --purple-dim:#2a1f4a;
+  --purple-mid:#6947cc;
+  --coral:#f87060;
+  --coral-dim:#3d1910;
+  --green:#4ade80;
+  --green-dim:#0f2e1a;
+  --red:#f87171;
+  --red-dim:#2e0f0f;
+  --radius:10px;
+  --radius-lg:16px;
+  --radius-xl:22px;
+  --font-display:'DM Serif Display',serif;
+  --font-body:'DM Sans',sans-serif;
+  --font-mono:'DM Mono',monospace;
+}
+html{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:16px;line-height:1.6}
+body{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 0 60px}
+
+/* ── Layout ─────────────────────────────────────── */
+.shell{width:100%;max-width:780px;padding:0 20px}
+
+/* ── Progress bar ───────────────────────────────── */
+.progress-wrap{position:fixed;top:0;left:0;width:100%;z-index:100;background:var(--bg)}
+.progress-bar-track{height:3px;background:var(--border)}
+.progress-bar-fill{height:3px;background:linear-gradient(90deg,var(--teal),var(--purple));transition:width 0.4s ease;width:0%}
+.progress-meta{display:flex;justify-content:space-between;align-items:center;padding:10px 24px 8px;font-size:12px;color:var(--text3);font-family:var(--font-mono)}
+.progress-meta .topic{color:var(--teal);font-weight:500}
+
+/* ── Slides ─────────────────────────────────────── */
+.slide{display:none;padding-top:72px;animation:fadeIn 0.35s ease}
+.slide.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Slide types ────────────────────────────────── */
+
+/* Cover */
+.cover{min-height:88vh;display:flex;flex-direction:column;justify-content:center;padding:40px 0}
+.cover-eyebrow{font-family:var(--font-mono);font-size:12px;color:var(--teal);letter-spacing:0.12em;margin-bottom:18px;text-transform:uppercase}
+.cover-title{font-family:var(--font-display);font-size:clamp(42px,7vw,72px);line-height:1.1;margin-bottom:16px}
+.cover-title em{color:var(--teal);font-style:italic}
+.cover-sub{font-size:17px;color:var(--text2);max-width:480px;line-height:1.6;margin-bottom:36px}
+.tag-row{display:flex;gap:10px;flex-wrap:wrap}
+.tag{background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-size:13px;padding:5px 14px;border-radius:20px;font-family:var(--font-mono)}
+.cover-deco{margin-top:48px;display:flex;gap:8px;align-items:flex-end}
+.cover-deco .bar{background:var(--teal-dim);border:1px solid var(--teal-mid);border-radius:4px;width:32px}
+
+/* Section header */
+.s-eyebrow{font-family:var(--font-mono);font-size:11px;color:var(--teal);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.s-title{font-family:var(--font-display);font-size:clamp(26px,4vw,38px);line-height:1.2;margin-bottom:20px}
+.s-body{font-size:15px;color:var(--text2);line-height:1.7}
+
+/* Story card */
+.story-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px 24px;margin:16px 0;display:flex;gap:18px}
+.story-icon{font-size:28px;flex-shrink:0;line-height:1}
+.story-text{font-size:14px;color:var(--text2);line-height:1.65}
+.story-text strong{color:var(--text);font-weight:500}
+
+/* Highlight box */
+.hl-box{border-radius:var(--radius-lg);padding:20px 24px;margin:16px 0}
+.hl-box.teal{background:var(--teal-dim);border:1px solid var(--teal-mid)}
+.hl-box.amber{background:var(--amber-dim);border:1px solid var(--amber-mid)}
+.hl-box.purple{background:var(--purple-dim);border:1px solid var(--purple-mid)}
+.hl-box.coral{background:var(--coral-dim);border:1px solid var(--coral)}
+.hl-box .hl-title{font-size:13px;font-weight:600;margin-bottom:8px;letter-spacing:0.02em}
+.hl-box.teal .hl-title{color:var(--teal)}
+.hl-box.amber .hl-title{color:var(--amber)}
+.hl-box.purple .hl-title{color:var(--purple)}
+.hl-box .hl-body{font-size:14px;color:var(--text2);line-height:1.65}
+.hl-box.teal .hl-body{color:#8fd8c8}
+.hl-box.amber .hl-body{color:#c8a84a}
+.hl-box.purple .hl-body{color:#c4b0f8}
+
+/* Tables */
+.seq-table-wrap{overflow-x:auto;margin:16px 0}
+table.seq-table{width:100%;border-collapse:collapse;font-size:14px}
+.seq-table th{background:var(--surface2);color:var(--text2);font-weight:500;padding:10px 14px;text-align:center;border:1px solid var(--border);font-family:var(--font-mono);font-size:13px}
+.seq-table td{padding:10px 14px;text-align:center;border:1px solid var(--border);color:var(--text)}
+.seq-table td.hl-cell{color:var(--teal);font-weight:500;font-family:var(--font-mono)}
+.seq-table td.label-cell{color:var(--text2);text-align:left;font-size:13px}
+
+/* Definition box */
+.def-box{background:var(--purple-dim);border:1px solid var(--purple-mid);border-radius:var(--radius-lg);padding:24px 26px;margin:16px 0}
+.def-box .def-headline{font-family:var(--font-display);font-size:22px;color:var(--purple);margin-bottom:10px}
+.def-box .def-text{font-size:14px;color:#c4b0f8;line-height:1.7;margin-bottom:16px}
+.def-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.def-pill{border-radius:var(--radius);padding:14px 16px}
+.def-pill.finite{background:var(--teal-dim);border:1px solid var(--teal-mid)}
+.def-pill.infinite{background:var(--amber-dim);border:1px solid var(--amber-mid)}
+.def-pill strong{display:block;font-size:13px;font-weight:600;margin-bottom:4px}
+.def-pill.finite strong{color:var(--teal)}
+.def-pill.infinite strong{color:var(--amber)}
+.def-pill p{font-size:12px;line-height:1.5}
+.def-pill.finite p{color:#8fd8c8}
+.def-pill.infinite p{color:#c8a84a}
+
+/* Steps */
+.steps{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+.step-row{display:flex;gap:14px;align-items:flex-start}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--purple-dim);border:1px solid var(--purple-mid);color:var(--purple);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-family:var(--font-mono)}
+.step-text{font-size:14px;color:var(--text2);line-height:1.6;padding-top:2px}
+.step-text code{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:1px 7px;font-family:var(--font-mono);font-size:12px;color:var(--teal)}
+
+/* Verdict badges */
+.verdict-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.verdict{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;font-family:var(--font-mono)}
+.verdict.yes{background:var(--teal-dim);color:var(--teal);border:1px solid var(--teal-mid)}
+.verdict.finite{background:var(--teal-dim);color:var(--teal);border:1px solid var(--teal-mid)}
+.verdict.infinite{background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-mid)}
+.verdict.no{background:var(--red-dim);color:var(--red)}
+
+/* Classify grid */
+.classify-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.cc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+.cc .seq-str{font-family:var(--font-mono);font-size:13px;color:var(--text);margin-bottom:8px;line-height:1.5}
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;font-family:var(--font-mono);letter-spacing:0.04em}
+.badge.finite{background:var(--teal-dim);color:var(--teal);border:1px solid var(--teal-mid)}
+.badge.infinite{background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-mid)}
+.badge.no-seq{background:var(--red-dim);color:var(--red)}
+
+/* Example block */
+.example-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 22px;margin:14px 0}
+.example-block .ex-label{font-family:var(--font-mono);font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px}
+
+/* Two-col layout */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+
+/* ─────────────────────────────────────────────────
+   PRACTICE SET
+──────────────────────────────────────────────── */
+.practice-header{text-align:center;padding:40px 0 32px}
+.practice-header .ph-eyebrow{font-family:var(--font-mono);font-size:11px;color:var(--coral);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.practice-header .ph-title{font-family:var(--font-display);font-size:36px;color:var(--text);margin-bottom:8px}
+.practice-header .ph-sub{font-size:14px;color:var(--text2)}
+.score-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 22px;display:flex;align-items:center;gap:18px;margin-bottom:28px}
+.score-bar .score-label{font-size:13px;color:var(--text2);font-family:var(--font-mono)}
+.score-bar .score-num{font-family:var(--font-display);font-size:32px;color:var(--teal);line-height:1}
+.score-bar .score-denom{font-size:14px;color:var(--text3);margin-left:2px}
+.score-bar .score-pct{margin-left:auto;font-family:var(--font-mono);font-size:13px;color:var(--text2)}
+.score-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.score-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--purple));border-radius:3px;transition:width 0.5s ease;width:0%}
+
+/* Question card */
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:26px 28px;margin-bottom:18px;transition:border-color 0.3s}
+.q-card.answered-correct{border-color:var(--teal)}
+.q-card.answered-wrong{border-color:var(--red)}
+.q-num{font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-bottom:8px;letter-spacing:0.06em}
+.q-text{font-size:16px;color:var(--text);line-height:1.5;margin-bottom:18px}
+.q-text code{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:2px 8px;font-family:var(--font-mono);font-size:14px;color:var(--teal)}
+.q-text .sub{font-size:13px;color:var(--text3);margin-top:4px}
+
+/* Option buttons */
+.options{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+.opt-btn{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:11px 16px;text-align:left;cursor:pointer;font-family:var(--font-body);font-size:14px;color:var(--text2);transition:all 0.2s;display:flex;align-items:center;gap:12px;width:100%}
+.opt-btn:hover:not(:disabled){background:var(--surface3);border-color:var(--border2);color:var(--text)}
+.opt-btn .opt-key{width:24px;height:24px;border-radius:6px;background:var(--surface3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;color:var(--text3);flex-shrink:0;transition:all 0.2s}
+.opt-btn.selected{border-color:var(--purple);color:var(--text)}
+.opt-btn.selected .opt-key{background:var(--purple-dim);border-color:var(--purple);color:var(--purple)}
+.opt-btn.correct{border-color:var(--teal);background:var(--teal-dim);color:var(--teal)}
+.opt-btn.correct .opt-key{background:var(--teal-dim);border-color:var(--teal);color:var(--teal)}
+.opt-btn.wrong{border-color:var(--red);background:var(--red-dim);color:var(--red)}
+.opt-btn.wrong .opt-key{background:var(--red-dim);border-color:var(--red);color:var(--red)}
+.opt-btn.reveal-correct{border-color:var(--teal);background:var(--teal-dim);color:var(--teal)}
+.opt-btn.reveal-correct .opt-key{background:var(--teal-dim);border-color:var(--teal);color:var(--teal)}
+.opt-btn:disabled{cursor:default;opacity:0.85}
+
+/* Check button */
+.check-btn{background:var(--teal);color:#051a15;font-family:var(--font-body);font-size:14px;font-weight:600;border:none;border-radius:var(--radius);padding:11px 24px;cursor:pointer;transition:all 0.2s;letter-spacing:0.02em}
+.check-btn:hover{background:#38e8bf;transform:translateY(-1px)}
+.check-btn:disabled{opacity:0.35;cursor:default;transform:none}
+
+/* Feedback */
+.feedback{margin-top:14px;border-radius:var(--radius);padding:12px 16px;font-size:13px;line-height:1.6;display:none}
+.feedback.show{display:block;animation:fadeIn 0.25s ease}
+.feedback.correct-fb{background:var(--teal-dim);border:1px solid var(--teal-mid);color:#8fd8c8}
+.feedback.correct-fb .fb-verdict{color:var(--teal);font-weight:600;margin-bottom:4px}
+.feedback.wrong-fb{background:var(--red-dim);border:1px solid #7a2020;color:#f0a0a0}
+.feedback.wrong-fb .fb-verdict{color:var(--red);font-weight:600;margin-bottom:4px}
+
+/* Input questions */
+.input-wrap{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin-bottom:18px}
+.q-input{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;font-family:var(--font-mono);font-size:14px;color:var(--text);width:260px;transition:border-color 0.2s;outline:none}
+.q-input:focus{border-color:var(--purple)}
+.q-input.correct-input{border-color:var(--teal);background:var(--teal-dim);color:var(--teal)}
+.q-input.wrong-input{border-color:var(--red);background:var(--red-dim);color:var(--red)}
+
+/* Checkbox questions */
+.checkbox-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+.cb-opt{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;cursor:pointer;font-size:13px;color:var(--text2);transition:all 0.2s;display:flex;align-items:center;gap:10px;user-select:none}
+.cb-opt:hover:not(.locked){background:var(--surface3);border-color:var(--border2)}
+.cb-opt.selected-cb{border-color:var(--purple);background:var(--purple-dim);color:var(--purple)}
+.cb-box{width:16px;height:16px;border-radius:4px;border:1px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.2s}
+.cb-opt.selected-cb .cb-box{background:var(--purple);border-color:var(--purple);color:#fff}
+.cb-opt.cb-correct{border-color:var(--teal);background:var(--teal-dim);color:var(--teal)}
+.cb-opt.cb-correct .cb-box{background:var(--teal);border-color:var(--teal);color:#051a15}
+.cb-opt.cb-wrong{border-color:var(--red);background:var(--red-dim);color:var(--red)}
+.cb-opt.locked{cursor:default}
+
+/* Results panel */
+.results-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:36px 32px;text-align:center;margin-top:28px;display:none}
+.results-panel.show{display:block;animation:fadeIn 0.4s ease}
+.results-trophy{font-size:52px;margin-bottom:16px}
+.results-title{font-family:var(--font-display);font-size:32px;margin-bottom:8px}
+.results-score{font-family:var(--font-mono);font-size:48px;color:var(--teal);margin-bottom:6px}
+.results-msg{font-size:15px;color:var(--text2);margin-bottom:28px}
+.retry-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-body);font-size:14px;font-weight:500;padding:11px 28px;border-radius:var(--radius);cursor:pointer;transition:all 0.2s}
+.retry-btn:hover{background:var(--surface3);border-color:var(--border2)}
+
+/* ── Nav ─────────────────────────────────────────── */
+.nav-wrap{position:fixed;bottom:0;left:0;width:100%;background:var(--bg);border-top:1px solid var(--border);padding:12px 24px;display:flex;justify-content:center;gap:10px;z-index:99}
+.nav-btn{background:var(--surface);border:1px solid var(--border);color:var(--text2);font-family:var(--font-body);font-size:13px;padding:8px 20px;border-radius:var(--radius);cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:6px}
+.nav-btn:hover:not(:disabled){background:var(--surface2);border-color:var(--border2);color:var(--text)}
+.nav-btn:disabled{opacity:0.3;cursor:default}
+.nav-btn.primary{background:var(--teal);color:#051a15;border-color:var(--teal);font-weight:600}
+.nav-btn.primary:hover{background:#38e8bf}
+.nav-dots{display:flex;gap:5px;align-items:center}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--border2);cursor:pointer;transition:all 0.2s}
+.dot.active{background:var(--teal);transform:scale(1.4)}
+.dot.practice{background:var(--coral);opacity:0.5}
+.dot.hw-dot{background:var(--amber);opacity:0.5}
+.dot.hw-dot.active{opacity:1}
+.dot.practice.active{opacity:1}
+
+/* Classify interactive */
+.cl-input-row{display:flex;gap:8px;align-items:center;margin-top:10px}
+.cl-input{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:7px 12px;font-family:var(--font-mono);font-size:12px;color:var(--text);flex:1;outline:none;transition:border-color 0.2s}
+.cl-input:focus{border-color:var(--purple)}
+.cl-input.cl-correct{border-color:var(--teal);background:var(--teal-dim);color:var(--teal)}
+.cl-input.cl-wrong{border-color:var(--red);background:var(--red-dim);color:var(--red)}
+.cl-input:disabled{cursor:default;opacity:0.85}
+.cl-btn{background:var(--surface3);border:1px solid var(--border2);color:var(--text2);font-family:var(--font-body);font-size:12px;font-weight:500;padding:7px 14px;border-radius:var(--radius);cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0}
+.cl-btn:hover:not(:disabled){background:var(--purple-dim);border-color:var(--purple);color:var(--purple)}
+.cl-btn:disabled{opacity:0.3;cursor:default}
+.cl-feedback{font-size:12px;line-height:1.5;margin-top:8px;padding:8px 11px;border-radius:8px;display:none}
+.cl-feedback.show{display:block;animation:fadeIn 0.25s ease}
+.cl-feedback.cl-fb-correct{background:var(--teal-dim);border:1px solid var(--teal-mid);color:#8fd8c8}
+.cl-feedback.cl-fb-correct .cl-verdict{color:var(--teal);font-weight:600;margin-bottom:3px}
+.cl-feedback.cl-fb-wrong{background:var(--red-dim);border:1px solid #7a2020;color:#f0a0a0}
+.cl-feedback.cl-fb-wrong .cl-verdict{color:var(--red);font-weight:600;margin-bottom:3px}
+.cc.cl-answered-correct{border-color:var(--teal)}
+.cc.cl-answered-wrong{border-color:var(--red)}
+.cl-score-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 20px;margin-top:16px;animation:fadeIn 0.3s ease}
+.cl-score-inner{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#cl-score-txt{font-size:15px;font-weight:500;color:var(--text)}
+.cl-retry-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-family:var(--font-body);font-size:13px;padding:7px 18px;border-radius:var(--radius);cursor:pointer;transition:all 0.2s}
+.cl-retry-btn:hover{background:var(--surface3);border-color:var(--border2);color:var(--text)}
+
+
+/* ── Homework slide ─────────────────────────── */
+.hw-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:20px 22px;margin-bottom:14px;transition:border-color 0.3s}
+.hw-card.hw-example{border-color:var(--border2);background:var(--surface2);opacity:0.85}
+.hw-card.hw-ok{border-color:var(--teal)}
+.hw-card.hw-wrong{border-color:var(--red)}
+.hw-badge-eg{display:inline-block;font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--text3);background:var(--surface3);border:1px solid var(--border2);padding:2px 10px;border-radius:20px;margin-bottom:10px;letter-spacing:0.06em;text-transform:uppercase}
+.hw-num{font-family:var(--font-mono);font-size:11px;color:var(--amber);font-weight:600;margin-bottom:8px;letter-spacing:0.06em}
+.hw-func{font-size:14px;color:var(--text);margin-bottom:14px;line-height:1.5}
+.hw-func code{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:2px 8px;font-family:var(--font-mono);font-size:13px;color:var(--teal)}
+.hw-domain{display:block;font-size:12px;color:var(--text3);margin-top:5px;font-family:var(--font-mono)}
+.hw-cols,.hw-inputs{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px;align-items:flex-start}
+.hw-col-group{display:flex;flex-direction:column;gap:5px;min-width:120px}
+.hw-terms-col{flex:2;min-width:200px}
+.hw-col-label{font-size:11px;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.05em}
+.hw-radio-row{display:flex;gap:12px;flex-wrap:wrap}
+.hw-radio{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);cursor:pointer;user-select:none}
+.hw-radio input{accent-color:var(--purple);cursor:pointer;width:14px;height:14px}
+.hw-terms-input{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-family:var(--font-mono);font-size:13px;color:var(--text);width:100%;outline:none;transition:border-color 0.2s}
+.hw-terms-input:focus{border-color:var(--purple)}
+.hw-terms-input.hw-inp-ok{border-color:var(--teal);background:var(--teal-dim);color:var(--teal)}
+.hw-terms-input.hw-inp-wrong{border-color:var(--red);background:var(--red-dim);color:var(--red)}
+.hw-terms-input:disabled{cursor:default;opacity:0.85}
+.hw-check-btn{background:var(--amber-dim);border:1px solid var(--amber-mid);color:var(--amber);font-family:var(--font-body);font-size:13px;font-weight:600;padding:9px 22px;border-radius:var(--radius);cursor:pointer;transition:all 0.2s;margin-top:4px}
+.hw-check-btn:hover:not(:disabled){background:#5a4a10;border-color:var(--amber);transform:translateY(-1px)}
+.hw-check-btn:disabled{opacity:0.3;cursor:default;transform:none}
+.hw-feedback{margin-top:12px;border-radius:var(--radius);padding:11px 14px;font-size:13px;line-height:1.6;display:none}
+.hw-feedback.show{display:block;animation:fadeIn 0.25s ease}
+.hw-feedback.hw-fb-ok{background:var(--teal-dim);border:1px solid var(--teal-mid);color:#8fd8c8}
+.hw-feedback.hw-fb-ok .hw-verdict{color:var(--teal);font-weight:600;margin-bottom:4px}
+.hw-feedback.hw-fb-wrong{background:var(--red-dim);border:1px solid #7a2020;color:#f0a0a0}
+.hw-feedback.hw-fb-wrong .hw-verdict{color:var(--red);font-weight:600;margin-bottom:4px}
+.hw-tick-badge{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;font-family:var(--font-mono)}
+.hw-tick-badge.yes-badge{background:var(--teal-dim);color:var(--teal);border:1px solid var(--teal-mid)}
+.hw-tick-badge.fin-badge{background:var(--teal-dim);color:var(--teal);border:1px solid var(--teal-mid)}
+.hw-tick-badge.dim-badge{background:var(--surface3);color:var(--text3);border:1px solid var(--border)}
+.hw-terms-shown{font-family:var(--font-mono);font-size:13px;color:var(--teal);margin-top:2px}
+
+
+/* ── Projected homework table ───────────────── */
+.hw-proj-wrap{overflow-x:auto;border-radius:var(--radius-lg);border:1px solid var(--border)}
+.hw-proj-table{width:100%;border-collapse:collapse;font-size:13px}
+.hw-proj-table thead tr{background:var(--surface2)}
+.hw-proj-table th{padding:10px 10px;text-align:center;border:1px solid var(--border2);color:var(--text2);font-family:var(--font-mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;line-height:1.4}
+.hw-proj-table td{border:1px solid var(--border);padding:10px 10px;vertical-align:middle;font-size:12px;color:var(--text)}
+.col-no{width:42px;text-align:center}
+.col-func{text-align:left;font-family:var(--font-mono);font-size:11.5px;min-width:200px}
+.col-domain{text-align:center;font-family:var(--font-mono);font-size:11px;color:var(--text2);min-width:110px}
+.col-yn{width:70px;text-align:center}
+.col-type{width:68px;text-align:center}
+.col-terms{min-width:160px;text-align:left;font-family:var(--font-mono);font-size:11px}
+.eg-row{background:var(--surface2);opacity:0.8}
+.eg-label{font-family:var(--font-mono);font-size:10px;color:var(--text3);text-align:center;font-weight:600}
+.tick-cell{color:var(--teal);font-size:16px;font-weight:700;text-align:center}
+.ans-cell{color:var(--teal);font-family:var(--font-mono)}
+.qnum{font-family:var(--font-mono);font-size:12px;font-weight:600;color:var(--amber);text-align:center}
+.blank-cell{background:var(--surface);min-height:36px}
+.blank-cell.revealed-tick{color:var(--teal);font-size:16px;font-weight:700;text-align:center;background:var(--teal-dim)}
+.blank-cell.revealed-cross{color:var(--red);font-size:16px;font-weight:700;text-align:center;background:var(--red-dim)}
+.blank-cell.revealed-na{color:var(--text3);font-size:12px;text-align:center;background:var(--surface2)}
+.blank-cell.revealed-ans{color:var(--teal);font-family:var(--font-mono);font-size:11px;background:var(--teal-dim)}
+.proj-btn{font-family:var(--font-body);font-size:13px;font-weight:600;padding:9px 22px;border-radius:var(--radius);cursor:pointer;transition:all 0.2s;border:1px solid}
+.reveal-btn{background:var(--teal-dim);border-color:var(--teal-mid);color:var(--teal)}
+.reveal-btn:hover{background:var(--teal-mid);color:#051a15}
+.reset-btn{background:var(--surface2);border-color:var(--border2);color:var(--text2)}
+.reset-btn:hover{background:var(--surface3);border-color:var(--border);color:var(--text)}
+
+@media(max-width:560px){
+  .def-grid,.classify-grid,.two-col,.checkbox-grid{grid-template-columns:1fr}
+  .cover-title{font-size:36px}
+  .cover-deco{display:none}
+  .q-input{width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div class="progress-wrap">
+  <div class="progress-meta">
+    <span class="topic">Sequences · Book 1</span>
+    <span id="prog-label">Slide 1 of 12</span>
+  </div>
+  <div class="progress-bar-track"><div class="progress-bar-fill" id="prog-fill"></div></div>
+</div>
+
+<div class="shell">
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 0 — COVER
+════════════════════════════════════════════ -->
+<div class="slide active" id="s0">
+  <div class="cover">
+    <div class="cover-eyebrow">Mathematics · Mathayom 5.16 · Sequences Unit</div>
+    <h1 class="cover-title">What comes<br><em>next?</em></h1>
+    <p class="cover-sub">An inductive lesson on sequences — observe patterns, discover the concept, then practise.</p>
+    <p style="font-family:var(--font-mono);font-size:13px;color:var(--text3);margin-bottom:20px;margin-top:-20px">Teacher: <span style="color:var(--teal)">Ms. Natalie</span></p>
+    <div class="tag-row">
+      <span class="tag">Finite sequences</span>
+      <span class="tag">Infinite sequences</span>
+      <span class="tag">Functions &amp; domains</span>
+      <span class="tag">Practice quiz</span>
+    </div>
+    <div class="cover-deco">
+      <div class="bar" style="height:24px"></div>
+      <div class="bar" style="height:40px"></div>
+      <div class="bar" style="height:60px;background:var(--teal-mid);border-color:var(--teal)"></div>
+      <div class="bar" style="height:80px;background:var(--teal-mid);border-color:var(--teal)"></div>
+      <div class="bar" style="height:100px;background:var(--teal);border-color:var(--teal)"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 1 — OBSERVE: Kung Ging
+════════════════════════════════════════════ -->
+<div class="slide" id="s1">
+  <div class="s-eyebrow">Observe · Situation 1</div>
+  <h2 class="s-title">Hana saves at the school bank</h2>
+
+  <div class="story-card">
+    <div class="story-icon">🐷</div>
+    <div class="story-text">Hana deposits money in the school bank every day for one week. On <strong>Day 1</strong> she deposits <strong>5 baht</strong>, and each following day she adds <strong>5 baht more</strong> than the day before.</div>
+  </div>
+
+  <div class="seq-table-wrap">
+    <table class="seq-table">
+      <tr><th>Day</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th></tr>
+      <tr>
+        <td class="label-cell">Amount (baht)</td>
+        <td class="hl-cell">5</td><td class="hl-cell">10</td><td class="hl-cell">15</td>
+        <td class="hl-cell">20</td><td class="hl-cell">25</td><td class="hl-cell">30</td><td class="hl-cell">35</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="hl-box teal">
+    <div class="hl-title">What do we notice?</div>
+    <div class="hl-body">This is a <strong>function</strong>. The day number maps to a unique deposit amount.<br>
+    Domain = {1, 2, 3, 4, 5, 6, 7} · Range = {5, 10, 15, 20, 25, 30, 35}<br>
+    The pattern <strong>has a definite end</strong> — it stops at day 7.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 2 — OBSERVE: Virus
+════════════════════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="s-eyebrow">Observe · Situation 2</div>
+  <h2 class="s-title">A virus doubles every second</h2>
+
+  <div class="story-card">
+    <div class="story-icon">🦠</div>
+    <div class="story-text">A virus splits from <strong>1 into 2 every second</strong>, and keeps going indefinitely. Starting with 1 virus, how many exist at each second?</div>
+  </div>
+
+  <div class="seq-table-wrap">
+    <table class="seq-table">
+      <tr><th>Time (s)</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>…</th></tr>
+      <tr>
+        <td class="label-cell">No. of viruses</td>
+        <td class="hl-cell">2</td><td class="hl-cell">4</td><td class="hl-cell">8</td>
+        <td class="hl-cell">16</td><td class="hl-cell">32</td><td class="hl-cell">64</td>
+        <td style="color:var(--text3)">…</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="two-col">
+    <div class="hl-box teal">
+      <div class="hl-title">Situation 1</div>
+      <div class="hl-body">Domain = {1…7}<br>Has a last term. <strong>Stops.</strong></div>
+    </div>
+    <div class="hl-box amber">
+      <div class="hl-title">Situation 2</div>
+      <div class="hl-body">Domain = {1, 2, 3, …}<br>Goes on forever. <strong>No end.</strong></div>
+    </div>
+  </div>
+
+  <div class="s-body" style="margin-top:8px">Both situations are functions whose domains start at 1 and are consecutive positive integers. This special property gives them a name…</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 3 — DEFINITION
+════════════════════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="s-eyebrow">Discover · Definition</div>
+  <h2 class="s-title">You just found a sequence!</h2>
+
+  <div class="def-box">
+    <div class="def-headline">Sequence (ลำดับ)</div>
+    <div class="def-text">A <strong>sequence</strong> is a function whose domain is the set {1, 2, 3, …, n} <em>or</em> the set of all positive integers {1, 2, 3, …}, arranged in increasing order starting from 1.</div>
+    <div class="def-grid">
+      <div class="def-pill finite">
+        <strong>Finite sequence</strong>
+        <p>Domain = {1, 2, 3, …, n}<br>Has a definite last term</p>
+      </div>
+      <div class="def-pill infinite">
+        <strong>Infinite sequence</strong>
+        <p>Domain = {1, 2, 3, …}<br>Goes on forever — no last term</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="hl-box coral">
+    <div class="hl-title" style="color:var(--coral)">Critical rule</div>
+    <div class="hl-body" style="color:#f5b0a8">The domain <strong>must start at 1 and be consecutive</strong>. A function with domain {2, 4, 6, 8} is NOT a sequence because it skips 1, 3, 5. If no domain restriction is stated, we assume the sequence is infinite.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 4 — WORKED EXAMPLES 1 & 2
+════════════════════════════════════════════ -->
+<div class="slide" id="s4">
+  <div class="s-eyebrow">Apply · Worked examples 1 &amp; 2</div>
+  <h2 class="s-title">Is it a sequence?</h2>
+
+  <div class="example-block">
+    <div class="ex-label">Example 1</div>
+    <div class="steps">
+      <div class="step-row"><div class="step-num">1</div><div class="step-text">Given: <code>f = {(1,1),(2,3),(3,9),(4,27),(5,81)}</code></div></div>
+      <div class="step-row"><div class="step-num">2</div><div class="step-text">Domain = {1, 2, 3, 4, 5} — consecutive, starts at 1 ✓</div></div>
+      <div class="step-row"><div class="step-num">3</div><div class="step-text">Range = {1, 3, 9, 27, 81}</div></div>
+    </div>
+    <div class="verdict-row">
+      <span class="verdict yes">✓ Is a sequence</span>
+      <span class="verdict finite">✓ Finite (n = 5)</span>
+    </div>
+  </div>
+
+  <div class="example-block">
+    <div class="ex-label">Example 2</div>
+    <div class="steps">
+      <div class="step-row"><div class="step-num">1</div><div class="step-text">Given: <code>f(x) = 2 − x</code> where x ∈ Z⁺</div></div>
+      <div class="step-row"><div class="step-num">2</div><div class="step-text">Domain = {1, 2, 3, 4, 5, …} — all positive integers, starts at 1 ✓</div></div>
+      <div class="step-row"><div class="step-num">3</div><div class="step-text">Range = {1, 0, −1, −2, −3, …}</div></div>
+    </div>
+    <div class="verdict-row">
+      <span class="verdict yes">✓ Is a sequence</span>
+      <span class="verdict infinite">∞ Infinite</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 5 — WORKED EXAMPLE 3 (classify interactive)
+════════════════════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="s-eyebrow">Apply · Worked example 3</div>
+  <h2 class="s-title">Classify: finite or infinite?</h2>
+  <p class="s-body" style="margin-bottom:14px">Type <strong style="color:var(--teal)">finite</strong> or <strong style="color:var(--amber)">infinite</strong> for each sequence, then click <strong>Check</strong>.</p>
+
+  <div class="classify-grid" id="classify-grid">
+
+    <div class="cc" id="cc1">
+      <div class="seq-str">1, 3, 7, 15, 31, 63</div>
+      <div class="cl-input-row">
+        <input class="cl-input" id="cl1" type="text" placeholder="finite / infinite" oninput="enableCL(1)">
+        <button class="cl-btn" id="clbtn1" onclick="checkCL(1,'finite','Last term is 63 — the sequence ends here.','The sequence lists all its terms with no ellipsis, so it has a definite last term → finite.')" disabled>Check</button>
+      </div>
+      <div class="cl-feedback" id="clf1"></div>
+    </div>
+
+    <div class="cc" id="cc2">
+      <div class="seq-str">−2, −4, −6, −8, −10, −12</div>
+      <div class="cl-input-row">
+        <input class="cl-input" id="cl2" type="text" placeholder="finite / infinite" oninput="enableCL(2)">
+        <button class="cl-btn" id="clbtn2" onclick="checkCL(2,'finite','Six terms listed with no ellipsis — it stops at −12 → finite.','Count the terms: −2, −4, −6, −8, −10, −12. No … at the end means it ends there → finite.')" disabled>Check</button>
+      </div>
+      <div class="cl-feedback" id="clf2"></div>
+    </div>
+
+    <div class="cc" id="cc3">
+      <div class="seq-str">5, 9, 13, 17, …, 4n+1, …</div>
+      <div class="cl-input-row">
+        <input class="cl-input" id="cl3" type="text" placeholder="finite / infinite" oninput="enableCL(3)">
+        <button class="cl-btn" id="clbtn3" onclick="checkCL(3,'infinite','The trailing ellipsis shows the sequence goes on forever → infinite.','The … at both the middle and end of the sequence means it never terminates → infinite.')" disabled>Check</button>
+      </div>
+      <div class="cl-feedback" id="clf3"></div>
+    </div>
+
+    <div class="cc" id="cc4">
+      <div class="seq-str">0, 1, 4, 9, …, (n−1)², …</div>
+      <div class="cl-input-row">
+        <input class="cl-input" id="cl4" type="text" placeholder="finite / infinite" oninput="enableCL(4)">
+        <button class="cl-btn" id="clbtn4" onclick="checkCL(4,'infinite','The general term (n−1)² continues with no upper bound on n → infinite.','No restriction is placed on n, and the trailing … confirms it goes on forever → infinite.')" disabled>Check</button>
+      </div>
+      <div class="cl-feedback" id="clf4"></div>
+    </div>
+
+    <div class="cc" id="cc5">
+      <div class="seq-str">aₙ = n²+1, n ∈ {1,2,3,4,5}</div>
+      <div class="cl-input-row">
+        <input class="cl-input" id="cl5" type="text" placeholder="finite / infinite" oninput="enableCL(5)">
+        <button class="cl-btn" id="clbtn5" onclick="checkCL(5,'finite','Domain is explicitly {1,2,3,4,5} — ends at n = 5 → finite.','The domain is bounded: n only goes up to 5, so there are exactly 5 terms → finite.')" disabled>Check</button>
+      </div>
+      <div class="cl-feedback" id="clf5"></div>
+    </div>
+
+    <div class="cc" id="cc6">
+      <div class="seq-str">aₙ = 5n²−1, n ∈ {1,2,3,…}</div>
+      <div class="cl-input-row">
+        <input class="cl-input" id="cl6" type="text" placeholder="finite / infinite" oninput="enableCL(6)">
+        <button class="cl-btn" id="clbtn6" onclick="checkCL(6,'infinite','Domain is {1,2,3,…} — all positive integers with no end → infinite.','The … in the domain means n keeps growing forever, so the sequence never terminates → infinite.')" disabled>Check</button>
+      </div>
+      <div class="cl-feedback" id="clf6"></div>
+    </div>
+
+  </div>
+
+  <!-- Score summary -->
+  <div class="cl-score-wrap" id="cl-score-wrap" style="display:none">
+    <div class="cl-score-inner">
+      <span id="cl-score-txt"></span>
+      <button class="cl-retry-btn" onclick="resetClassify()">↺ Try again</button>
+    </div>
+  </div>
+
+  <div class="hl-box amber" style="margin-top:16px">
+    <div class="hl-title">Quick rule</div>
+    <div class="hl-body">If the domain ends at a specific value (e.g. n ∈ {1…5} or the list shows a last term), it's <strong>finite</strong>. If it uses "…" with no stated end, it's <strong>infinite</strong>.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 6 — WORKED EXAMPLE 4 (not a sequence)
+════════════════════════════════════════════ -->
+<div class="slide" id="s6">
+  <div class="s-eyebrow">Apply · Worked example 4</div>
+  <h2 class="s-title">When is it NOT a sequence?</h2>
+
+  <div class="two-col">
+    <div class="example-block">
+      <div class="ex-label">Not a sequence ✗</div>
+      <div class="steps">
+        <div class="step-row"><div class="step-num" style="background:var(--red-dim);border-color:var(--red);color:var(--red)">✗</div>
+        <div class="step-text"><code>{(2,3),(3,0),(6,−3),(8,−6),…}</code></div></div>
+        <div class="step-row"><div class="step-num" style="background:var(--red-dim);border-color:var(--red);color:var(--red)">!</div>
+        <div class="step-text">Domain = {2, 3, 6, 8, …} — does NOT start at 1; not consecutive</div></div>
+      </div>
+      <div class="verdict-row"><span class="verdict no">✗ Not a sequence</span></div>
+    </div>
+    <div class="example-block">
+      <div class="ex-label">Not a sequence ✗</div>
+      <div class="steps">
+        <div class="step-row"><div class="step-num" style="background:var(--red-dim);border-color:var(--red);color:var(--red)">✗</div>
+        <div class="step-text"><code>{(−1,3),(−2,6),(−3,9),(−4,12)}</code></div></div>
+        <div class="step-row"><div class="step-num" style="background:var(--red-dim);border-color:var(--red);color:var(--red)">!</div>
+        <div class="step-text">Domain = {−1,−2,−3,−4} — negative integers, not starting from 1</div></div>
+      </div>
+      <div class="verdict-row"><span class="verdict no">✗ Not a sequence</span></div>
+    </div>
+  </div>
+
+  <div class="hl-box teal" style="margin-top:16px">
+    <div class="hl-title">Summary so far</div>
+    <div class="hl-body">
+      ✓ Domain starts at 1 AND is consecutive → <strong>Sequence</strong><br>
+      ✓ Ends at n → <strong>Finite</strong> · continues forever → <strong>Infinite</strong><br>
+      ✗ Domain skips numbers, doesn't start at 1, or uses negatives → <strong>Not a sequence</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 7 — PRACTICE SET
+════════════════════════════════════════════ -->
+<div class="slide" id="s7">
+
+  <div class="practice-header">
+    <div class="ph-eyebrow">Practice set · 10 questions</div>
+    <h2 class="ph-title">Test your knowledge</h2>
+    <p class="ph-sub">Answer each question and click <strong>Check</strong> to see if you're right.</p>
+  </div>
+
+  <!-- Score bar -->
+  <div class="score-bar">
+    <div>
+      <div class="score-label">Score</div>
+      <div><span class="score-num" id="score-num">0</span><span class="score-denom">&thinsp;/ 10</span></div>
+    </div>
+    <div class="score-track"><div class="score-fill" id="score-fill"></div></div>
+    <div class="score-pct" id="score-pct">0%</div>
+  </div>
+
+  <!-- ── Q1: MCQ ── -->
+  <div class="q-card" id="qc1">
+    <div class="q-num">Question 1 of 10 · Multiple choice</div>
+    <div class="q-text">Which of the following is a sequence?</div>
+    <div class="options" id="opts1">
+      <button class="opt-btn" onclick="selectOpt(1,'A')"><span class="opt-key">A</span>{(2,1),(4,3),(6,5),(8,7)}</button>
+      <button class="opt-btn" onclick="selectOpt(1,'B')"><span class="opt-key">B</span>{(1,2),(2,4),(3,8),(4,16)}</button>
+      <button class="opt-btn" onclick="selectOpt(1,'C')"><span class="opt-key">C</span>{(0,1),(1,2),(2,4),(3,8)}</button>
+      <button class="opt-btn" onclick="selectOpt(1,'D')"><span class="opt-key">D</span>{(−1,1),(−2,2),(−3,3)}</button>
+    </div>
+    <button class="check-btn" id="chk1" onclick="checkMCQ(1,'B','Domain is {1,2,3,4} — consecutive positive integers starting at 1. ✓','Options A, C and D either skip 1 or use 0 / negative integers as domain.')" disabled>Check answer</button>
+    <div class="feedback" id="fb1"></div>
+  </div>
+
+  <!-- ── Q2: MCQ ── -->
+  <div class="q-card" id="qc2">
+    <div class="q-num">Question 2 of 10 · Multiple choice</div>
+    <div class="q-text">Is <code>{(1,−1),(2,−2),(3,−3),(4,−4)}</code> a sequence? If so, what kind?</div>
+    <div class="options" id="opts2">
+      <button class="opt-btn" onclick="selectOpt(2,'A')"><span class="opt-key">A</span>Not a sequence</button>
+      <button class="opt-btn" onclick="selectOpt(2,'B')"><span class="opt-key">B</span>Finite sequence</button>
+      <button class="opt-btn" onclick="selectOpt(2,'C')"><span class="opt-key">C</span>Infinite sequence</button>
+      <button class="opt-btn" onclick="selectOpt(2,'D')"><span class="opt-key">D</span>Cannot be determined</button>
+    </div>
+    <button class="check-btn" id="chk2" onclick="checkMCQ(2,'B','Domain = {1,2,3,4} — starts at 1, consecutive. It has 4 terms and ends, so it is a finite sequence.','The domain is {1,2,3,4} which is valid (starts at 1, consecutive), so it IS a sequence. Since the domain ends at n=4, it is finite.')" disabled>Check answer</button>
+    <div class="feedback" id="fb2"></div>
+  </div>
+
+  <!-- ── Q3: MCQ ── -->
+  <div class="q-card" id="qc3">
+    <div class="q-num">Question 3 of 10 · Multiple choice</div>
+    <div class="q-text">Classify: <code>−1, −3, −5, −7, −9, …</code></div>
+    <div class="options" id="opts3">
+      <button class="opt-btn" onclick="selectOpt(3,'A')"><span class="opt-key">A</span>Not a sequence</button>
+      <button class="opt-btn" onclick="selectOpt(3,'B')"><span class="opt-key">B</span>Finite sequence</button>
+      <button class="opt-btn" onclick="selectOpt(3,'C')"><span class="opt-key">C</span>Infinite sequence</button>
+      <button class="opt-btn" onclick="selectOpt(3,'D')"><span class="opt-key">D</span>Not enough information</button>
+    </div>
+    <button class="check-btn" id="chk3" onclick="checkMCQ(3,'C','The ellipsis at the end means the sequence goes on forever with no last term → infinite sequence.','Even though the values are negative, the domain (position numbers) is {1,2,3,4,5,…} — all positive integers starting at 1. The ellipsis means it never ends → infinite.')" disabled>Check answer</button>
+    <div class="feedback" id="fb3"></div>
+  </div>
+
+  <!-- ── Q4: MCQ ── -->
+  <div class="q-card" id="qc4">
+    <div class="q-num">Question 4 of 10 · Multiple choice</div>
+    <div class="q-text">Which function is NOT a sequence?</div>
+    <div class="options" id="opts4">
+      <button class="opt-btn" onclick="selectOpt(4,'A')"><span class="opt-key">A</span>f(x) = 3x + 1, x = 1, 2, 3, …</button>
+      <button class="opt-btn" onclick="selectOpt(4,'B')"><span class="opt-key">B</span>{(1,5),(2,10),(3,15),(4,20)}</button>
+      <button class="opt-btn" onclick="selectOpt(4,'C')"><span class="opt-key">C</span>{(2,3),(4,6),(6,9),(8,12)}</button>
+      <button class="opt-btn" onclick="selectOpt(4,'D')"><span class="opt-key">D</span>aₙ = n² + 1, n ∈ {1,2,3,4,5}</button>
+    </div>
+    <button class="check-btn" id="chk4" onclick="checkMCQ(4,'C','Domain = {2,4,6,8} — skips the odd integers and does not start at 1. Therefore it is NOT a sequence.','Options A, B, D all have domains that are subsets of consecutive positive integers starting at 1. Only C has domain {2,4,6,8} which skips numbers.')" disabled>Check answer</button>
+    <div class="feedback" id="fb4"></div>
+  </div>
+
+  <!-- ── Q5: MCQ ── -->
+  <div class="q-card" id="qc5">
+    <div class="q-num">Question 5 of 10 · Multiple choice</div>
+    <div class="q-text">aₙ = 5n² − 1 with no stated domain restriction. What type is it?</div>
+    <div class="options" id="opts5">
+      <button class="opt-btn" onclick="selectOpt(5,'A')"><span class="opt-key">A</span>Not a sequence — domain is missing</button>
+      <button class="opt-btn" onclick="selectOpt(5,'B')"><span class="opt-key">B</span>Finite sequence</button>
+      <button class="opt-btn" onclick="selectOpt(5,'C')"><span class="opt-key">C</span>Infinite sequence</button>
+      <button class="opt-btn" onclick="selectOpt(5,'D')"><span class="opt-key">D</span>Cannot be classified</button>
+    </div>
+    <button class="check-btn" id="chk5" onclick="checkMCQ(5,'C','When no domain restriction is stated, we assume the domain is all positive integers {1,2,3,…} → infinite sequence.','This is a key rule: if no domain boundary is given, the sequence is assumed to go on forever (infinite).')" disabled>Check answer</button>
+    <div class="feedback" id="fb5"></div>
+  </div>
+
+  <!-- ── Q6: TRUE/FALSE ── -->
+  <div class="q-card" id="qc6">
+    <div class="q-num">Question 6 of 10 · True or False</div>
+    <div class="q-text">"The function <code>f = {(1,32),(2,−16),(3,8),(4,−4)}</code> is a finite sequence."<br><span class="sub">Domain = {1, 2, 3, 4}</span></div>
+    <div class="options" id="opts6">
+      <button class="opt-btn" onclick="selectOpt(6,'A')"><span class="opt-key">A</span>True</button>
+      <button class="opt-btn" onclick="selectOpt(6,'B')"><span class="opt-key">B</span>False</button>
+    </div>
+    <button class="check-btn" id="chk6" onclick="checkMCQ(6,'A','Domain = {1,2,3,4} — starts at 1, consecutive positive integers, ends at n=4. All conditions for a finite sequence are met. ✓','Even though the range alternates between positive and negative, the domain is valid. The range values do not affect whether it is a sequence.')" disabled>Check answer</button>
+    <div class="feedback" id="fb6"></div>
+  </div>
+
+  <!-- ── Q7: MCQ ── -->
+  <div class="q-card" id="qc7">
+    <div class="q-num">Question 7 of 10 · Multiple choice</div>
+    <div class="q-text">Which pair correctly identifies the domain and range of the sequence <code>3, 4, 5, 6, 7, …, (n+2)</code>?</div>
+    <div class="options" id="opts7">
+      <button class="opt-btn" onclick="selectOpt(7,'A')"><span class="opt-key">A</span>Domain {3,4,5,…} · Range {1,2,3,…}</button>
+      <button class="opt-btn" onclick="selectOpt(7,'B')"><span class="opt-key">B</span>Domain {1,2,3,…} · Range {3,4,5,…}</button>
+      <button class="opt-btn" onclick="selectOpt(7,'C')"><span class="opt-key">C</span>Domain {1,2,3,…} · Range {1,2,3,…}</button>
+      <button class="opt-btn" onclick="selectOpt(7,'D')"><span class="opt-key">D</span>Domain {3,4,5,…} · Range {3,4,5,…}</button>
+    </div>
+    <button class="check-btn" id="chk7" onclick="checkMCQ(7,'B','For a sequence, the domain is always the position numbers {1,2,3,…}. The values 3,4,5,… are the range (the outputs aₙ = n+2).','Remember: domain = positions (1,2,3,…), range = the actual values in the sequence (3,4,5,…).')" disabled>Check answer</button>
+    <div class="feedback" id="fb7"></div>
+  </div>
+
+  <!-- ── Q8: MULTI-SELECT ── -->
+  <div class="q-card" id="qc8">
+    <div class="q-num">Question 8 of 10 · Select all that apply</div>
+    <div class="q-text">Which of the following are infinite sequences? (Select all correct answers)</div>
+    <div class="checkbox-grid" id="cb8">
+      <div class="cb-opt" onclick="toggleCB(8,'A',this)"><div class="cb-box">✓</div>2, 3, 5, 8, … (no end)</div>
+      <div class="cb-opt" onclick="toggleCB(8,'B',this)"><div class="cb-box">✓</div>15, 9, 3, −3, …, −15</div>
+      <div class="cb-opt" onclick="toggleCB(8,'C',this)"><div class="cb-box">✓</div>aₙ = n+5, n ∈ Z⁺</div>
+      <div class="cb-opt" onclick="toggleCB(8,'D',this)"><div class="cb-box">✓</div>−24, 12, −6, 3, −3/2</div>
+    </div>
+    <button class="check-btn" id="chk8" onclick="checkMulti(8,['A','C'],'A and C are infinite: A uses an ellipsis with no end; C has domain I+ (all positive integers).','B ends at −15 (finite). D has 5 listed terms with no ellipsis so it ends there (finite). Only A and C are infinite.')" disabled>Check answer</button>
+    <div class="feedback" id="fb8"></div>
+  </div>
+
+  <!-- ── Q9: TEXT INPUT ── -->
+  <div class="q-card" id="qc9">
+    <div class="q-num">Question 9 of 10 · Fill in the blank</div>
+    <div class="q-text">The sequence <code>4, 10, 18, 28, …, 108</code> is a <strong>________</strong> sequence.<br><span class="sub">Type "finite" or "infinite"</span></div>
+    <div class="input-wrap">
+      <input class="q-input" id="inp9" type="text" placeholder="Type your answer…" oninput="enableCheck(9)">
+      <button class="check-btn" id="chk9" onclick="checkInput(9,['finite'],'Correct! The sequence ends at 108, so it has a last term → finite sequence.','The sequence lists a final value (108), so it ends. That makes it a finite sequence.')" disabled>Check</button>
+    </div>
+    <div class="feedback" id="fb9"></div>
+  </div>
+
+  <!-- ── Q10: TEXT INPUT ── -->
+  <div class="q-card" id="qc10">
+    <div class="q-num">Question 10 of 10 · Fill in the blank</div>
+    <div class="q-text">If a sequence has no stated domain restriction, it is assumed to be a <strong>________</strong> sequence.<br><span class="sub">Type "finite" or "infinite"</span></div>
+    <div class="input-wrap">
+      <input class="q-input" id="inp10" type="text" placeholder="Type your answer…" oninput="enableCheck(10)">
+      <button class="check-btn" id="chk10" onclick="checkInput(10,['infinite'],'Correct! When no domain boundary is given, we assume the domain is all positive integers → infinite sequence.','Key rule: if no restriction is stated, assume infinite. This applies to general term definitions like an = 3n + 1 with no domain boundary.')" disabled>Check</button>
+    </div>
+    <div class="feedback" id="fb10"></div>
+  </div>
+
+  <!-- Results panel -->
+  <div class="results-panel" id="results-panel">
+    <div class="results-trophy" id="r-trophy">🎉</div>
+    <div class="results-title" id="r-title">Well done!</div>
+    <div class="results-score" id="r-score">0 / 10</div>
+    <div class="results-msg" id="r-msg">Keep practising to master sequences.</div>
+    <button class="retry-btn" onclick="resetPractice()">↺ Try again</button>
+  </div>
+
+</div><!-- end slide s7 -->
+
+<!-- ═══════════════════════════════════════════
+     SLIDE 8 — HOMEWORK (projected table)
+════════════════════════════════════════════ -->
+<div class="slide" id="s8">
+
+  <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px;padding-top:4px">
+    <div>
+      <div class="s-eyebrow" style="margin-bottom:6px">Homework · Class Activity</div>
+      <h2 class="s-title" style="margin-bottom:0">Is it a sequence?</h2>
+    </div>
+    <span style="font-family:var(--font-mono);font-size:11px;color:var(--text3)">Write your answers on the whiteboard</span>
+  </div>
+
+  <div class="hw-proj-wrap">
+    <table class="hw-proj-table">
+      <thead>
+        <tr>
+          <th class="col-no">No.</th>
+          <th class="col-func">Function</th>
+          <th class="col-domain">Domain</th>
+          <th class="col-yn">Is a<br>Sequence?</th>
+          <th class="col-yn">Not a<br>Sequence?</th>
+          <th class="col-type">Finite</th>
+          <th class="col-type">Infinite</th>
+          <th class="col-terms">Sequence Terms</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Example row -->
+        <tr class="eg-row">
+          <td class="col-no eg-label">eg.</td>
+          <td class="col-func">{(1,−1), (2,1), (3,3), (4,5)}</td>
+          <td class="col-domain">{1, 2, 3, 4}</td>
+          <td class="col-yn tick-cell">✓</td>
+          <td class="col-yn"></td>
+          <td class="col-type tick-cell">✓</td>
+          <td class="col-type"></td>
+          <td class="col-terms ans-cell">−1, 1, 3, 5</td>
+        </tr>
+        <!-- Q1 -->
+        <tr>
+          <td class="col-no qnum">1</td>
+          <td class="col-func">{(1,1), (2,4), (3,9), (4,16), …}</td>
+          <td class="col-domain">{1, 2, 3, 4, …}</td>
+          <td class="col-yn blank-cell" id="p1a"></td>
+          <td class="col-yn blank-cell" id="p1b"></td>
+          <td class="col-type blank-cell" id="p1c"></td>
+          <td class="col-type blank-cell" id="p1d"></td>
+          <td class="col-terms blank-cell" id="p1e"></td>
+        </tr>
+        <!-- Q2 -->
+        <tr>
+          <td class="col-no qnum">2</td>
+          <td class="col-func">{(2,3), (3,0), (6,−3), (8,−6)}</td>
+          <td class="col-domain">{2, 3, 6, 8}</td>
+          <td class="col-yn blank-cell" id="p2a"></td>
+          <td class="col-yn blank-cell" id="p2b"></td>
+          <td class="col-type blank-cell" id="p2c"></td>
+          <td class="col-type blank-cell" id="p2d"></td>
+          <td class="col-terms blank-cell" id="p2e"></td>
+        </tr>
+        <!-- Q3 -->
+        <tr>
+          <td class="col-no qnum">3</td>
+          <td class="col-func">{(1,1), (2,3), (3,6), (4,10), …}</td>
+          <td class="col-domain">{1, 2, 3, 4, …}</td>
+          <td class="col-yn blank-cell" id="p3a"></td>
+          <td class="col-yn blank-cell" id="p3b"></td>
+          <td class="col-type blank-cell" id="p3c"></td>
+          <td class="col-type blank-cell" id="p3d"></td>
+          <td class="col-terms blank-cell" id="p3e"></td>
+        </tr>
+        <!-- Q4 -->
+        <tr>
+          <td class="col-no qnum">4</td>
+          <td class="col-func">{(1,32), (2,−16), (3,8), (4,−4)}</td>
+          <td class="col-domain">{1, 2, 3, 4}</td>
+          <td class="col-yn blank-cell" id="p4a"></td>
+          <td class="col-yn blank-cell" id="p4b"></td>
+          <td class="col-type blank-cell" id="p4c"></td>
+          <td class="col-type blank-cell" id="p4d"></td>
+          <td class="col-terms blank-cell" id="p4e"></td>
+        </tr>
+        <!-- Q5 -->
+        <tr>
+          <td class="col-no qnum">5</td>
+          <td class="col-func">{(x,y) | y = 2ˣ − 1,&nbsp; x ∈ Z⁺}</td>
+          <td class="col-domain">{1, 2, 3, 4, …}</td>
+          <td class="col-yn blank-cell" id="p5a"></td>
+          <td class="col-yn blank-cell" id="p5b"></td>
+          <td class="col-type blank-cell" id="p5c"></td>
+          <td class="col-type blank-cell" id="p5d"></td>
+          <td class="col-terms blank-cell" id="p5e"></td>
+        </tr>
+        <!-- Q6 -->
+        <tr>
+          <td class="col-no qnum">6</td>
+          <td class="col-func">aₙ = 3n − 2,&nbsp; n ∈ {1, 2, 3, 4, 5}</td>
+          <td class="col-domain">{1, 2, 3, 4, 5}</td>
+          <td class="col-yn blank-cell" id="p6a"></td>
+          <td class="col-yn blank-cell" id="p6b"></td>
+          <td class="col-type blank-cell" id="p6c"></td>
+          <td class="col-type blank-cell" id="p6d"></td>
+          <td class="col-terms blank-cell" id="p6e"></td>
+        </tr>
+        <!-- Q7 -->
+        <tr>
+          <td class="col-no qnum">7</td>
+          <td class="col-func">{(−1,2), (−2,4), (−3,6), (−4,8)}</td>
+          <td class="col-domain">{−1, −2, −3, −4}</td>
+          <td class="col-yn blank-cell" id="p7a"></td>
+          <td class="col-yn blank-cell" id="p7b"></td>
+          <td class="col-type blank-cell" id="p7c"></td>
+          <td class="col-type blank-cell" id="p7d"></td>
+          <td class="col-terms blank-cell" id="p7e"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Reveal answers button -->
+  <div style="display:flex;justify-content:flex-end;margin-top:16px;gap:10px">
+    <button class="proj-btn reveal-btn" id="reveal-btn" onclick="revealAnswers()">Show Answers</button>
+    <button class="proj-btn reset-btn" onclick="resetProjTable()">Reset</button>
+  </div>
+
+</div><!-- end slide s8 -->
+
+</div><!-- end shell -->
+
+<!-- Nav -->
+<div class="nav-wrap">
+  <button class="nav-btn" id="prevBtn" onclick="navigate(-1)" disabled>← Prev</button>
+  <div class="nav-dots" id="nav-dots"></div>
+  <button class="nav-btn primary" id="nextBtn" onclick="navigate(1)">Next →</button>
+</div>
+
+<script>
+/* ──────────────────────────────────────────
+   Classify (Slide 6) logic
+────────────────────────────────────────── */
+let clAnswered = {};
+let clScore = 0;
+
+function enableCL(n) {
+  const val = document.getElementById('cl' + n).value.trim();
+  document.getElementById('clbtn' + n).disabled = val === '';
+}
+
+function checkCL(n, correct, okMsg, wrongMsg) {
+  if (clAnswered[n]) return;
+  const input = document.getElementById('cl' + n);
+  const val = input.value.trim().toLowerCase();
+  const isCorrect = val === correct.toLowerCase();
+  const fb = document.getElementById('clf' + n);
+  const card = document.getElementById('cc' + n);
+
+  input.disabled = true;
+  input.className = 'cl-input ' + (isCorrect ? 'cl-correct' : 'cl-wrong');
+  document.getElementById('clbtn' + n).disabled = true;
+
+  fb.className = 'cl-feedback show ' + (isCorrect ? 'cl-fb-correct' : 'cl-fb-wrong');
+  fb.innerHTML = '<div class="cl-verdict">' + (isCorrect ? '✓ Correct!' : '✗ Not quite — the answer is ' + correct + '.') + '</div>' + (isCorrect ? okMsg : wrongMsg);
+  card.className = 'cc ' + (isCorrect ? 'cl-answered-correct' : 'cl-answered-wrong');
+
+  clAnswered[n] = true;
+  if (isCorrect) clScore++;
+
+  if (Object.keys(clAnswered).length === 6) {
+    const wrap = document.getElementById('cl-score-wrap');
+    wrap.style.display = 'block';
+    const pct = Math.round(clScore / 6 * 100);
+    const emoji = pct === 100 ? '🏆' : pct >= 67 ? '👍' : '📖';
+    document.getElementById('cl-score-txt').innerHTML =
+      emoji + '  You got <strong style="color:var(--teal)">' + clScore + ' / 6</strong> correct (' + pct + '%)' +
+      (pct < 100 ? ' — review the quick rule below.' : ' — perfect!');
+  }
+}
+
+function resetClassify() {
+  clAnswered = {}; clScore = 0;
+  document.getElementById('cl-score-wrap').style.display = 'none';
+  for (let n = 1; n <= 6; n++) {
+    const input = document.getElementById('cl' + n);
+    input.value = ''; input.className = 'cl-input'; input.disabled = false;
+    const btn = document.getElementById('clbtn' + n);
+    btn.disabled = true;
+    const fb = document.getElementById('clf' + n);
+    fb.className = 'cl-feedback'; fb.innerHTML = '';
+    document.getElementById('cc' + n).className = 'cc';
+  }
+}
+
+const TOTAL = 9;
+let cur = 0;
+
+const slides = Array.from({length: TOTAL}, (_, i) => document.getElementById('s' + i));
+const dotsEl = document.getElementById('nav-dots');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const progFill = document.getElementById('prog-fill');
+const progLabel = document.getElementById('prog-label');
+
+const slideLabels = ['Cover','Situation 1','Situation 2','Definition','Examples 1&2','Example 3','Example 4','Practice','Homework'];
+
+for (let i = 0; i < TOTAL; i++) {
+  const d = document.createElement('div');
+  const isHW = i === TOTAL - 1; const isPrac = i === TOTAL - 2;
+  d.className = 'dot' + (isHW ? ' hw-dot' : isPrac ? ' practice' : '') + (i === 0 ? ' active' : '');
+  d.title = slideLabels[i];
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+}
+
+function goTo(n) {
+  if (n < 0 || n >= TOTAL) return;
+  slides[cur].classList.remove('active');
+  slides[n].classList.add('active');
+  cur = n;
+  Array.from(dotsEl.children).forEach((d, i) => {
+    const isHWd = i === TOTAL - 1; const isPracd = i === TOTAL - 2;
+    d.className = 'dot' + (isHWd ? ' hw-dot' : isPracd ? ' practice' : '') + (i === cur ? ' active' : '');
+  });
+  prevBtn.disabled = cur === 0;
+  nextBtn.textContent = cur === TOTAL - 1 ? '↑ Top' : 'Next →';
+  nextBtn.className = 'nav-btn' + (cur < TOTAL - 1 ? ' primary' : '');
+  const pct = Math.round((cur / (TOTAL - 1)) * 100);
+  progFill.style.width = pct + '%';
+  progLabel.textContent = 'Slide ' + (cur + 1) + ' of ' + TOTAL + ' — ' + slideLabels[cur];
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function navigate(delta) {
+  if (cur === TOTAL - 1 && delta === 1) { window.scrollTo({top: 0, behavior: 'smooth'}); return; }
+  goTo(cur + delta);
+}
+
+/* ──────────────────────────────────────────
+   Practice logic
+────────────────────────────────────────── */
+let score = 0;
+let answered = {};
+let selectedOpts = {};
+let selectedCBs = {};
+
+function selectOpt(qNum, key) {
+  if (answered[qNum]) return;
+  selectedOpts[qNum] = key;
+  const opts = document.querySelectorAll('#opts' + qNum + ' .opt-btn');
+  const keys = ['A','B','C','D'];
+  opts.forEach((btn, i) => {
+    btn.className = 'opt-btn' + (keys[i] === key ? ' selected' : '');
+  });
+  document.getElementById('chk' + qNum).disabled = false;
+}
+
+function toggleCB(qNum, key, el) {
+  if (answered[qNum]) return;
+  if (!selectedCBs[qNum]) selectedCBs[qNum] = new Set();
+  if (selectedCBs[qNum].has(key)) {
+    selectedCBs[qNum].delete(key);
+    el.className = 'cb-opt';
+  } else {
+    selectedCBs[qNum].add(key);
+    el.className = 'cb-opt selected-cb';
+  }
+  document.getElementById('chk' + qNum).disabled = (selectedCBs[qNum].size === 0);
+}
+
+function enableCheck(qNum) {
+  const val = document.getElementById('inp' + qNum).value.trim();
+  document.getElementById('chk' + qNum).disabled = val === '';
+}
+
+function showFeedback(qNum, isCorrect, okMsg, wrongMsg) {
+  const fb = document.getElementById('fb' + qNum);
+  const card = document.getElementById('qc' + qNum);
+  fb.className = 'feedback show ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
+  fb.innerHTML = '<div class="fb-verdict">' + (isCorrect ? '✓ Correct!' : '✗ Not quite') + '</div>' + (isCorrect ? okMsg : wrongMsg);
+  card.className = 'q-card ' + (isCorrect ? 'answered-correct' : 'answered-wrong');
+  answered[qNum] = true;
+  if (isCorrect) {
+    score++;
+    updateScore();
+  }
+  document.getElementById('chk' + qNum).disabled = true;
+  checkAllAnswered();
+}
+
+function checkMCQ(qNum, correct, okMsg, wrongMsg) {
+  if (answered[qNum]) return;
+  const sel = selectedOpts[qNum];
+  const opts = document.querySelectorAll('#opts' + qNum + ' .opt-btn');
+  const keys = ['A','B','C','D'];
+  opts.forEach((btn, i) => {
+    btn.disabled = true;
+    if (keys[i] === correct) btn.className = 'opt-btn reveal-correct';
+    else if (keys[i] === sel && sel !== correct) btn.className = 'opt-btn wrong';
+    else btn.className = 'opt-btn';
+  });
+  showFeedback(qNum, sel === correct, okMsg, wrongMsg);
+}
+
+function checkMulti(qNum, correctArr, okMsg, wrongMsg) {
+  if (answered[qNum]) return;
+  const sel = selectedCBs[qNum] || new Set();
+  const correct = new Set(correctArr);
+  const isCorrect = sel.size === correct.size && [...sel].every(k => correct.has(k));
+  const opts = document.querySelectorAll('#cb8 .cb-opt');
+  const keys = ['A','B','C','D'];
+  opts.forEach((el, i) => {
+    el.classList.add('locked');
+    const k = keys[i];
+    if (correct.has(k)) el.className = 'cb-opt locked cb-correct';
+    else if (sel.has(k) && !correct.has(k)) el.className = 'cb-opt locked cb-wrong';
+    else el.className = 'cb-opt locked';
+  });
+  showFeedback(qNum, isCorrect, okMsg, wrongMsg);
+}
+
+function checkInput(qNum, correctArr, okMsg, wrongMsg) {
+  if (answered[qNum]) return;
+  const input = document.getElementById('inp' + qNum);
+  const val = input.value.trim().toLowerCase();
+  const isCorrect = correctArr.some(c => c.toLowerCase() === val);
+  input.className = 'q-input ' + (isCorrect ? 'correct-input' : 'wrong-input');
+  input.disabled = true;
+  showFeedback(qNum, isCorrect, okMsg, wrongMsg);
+}
+
+function updateScore() {
+  const total = 10;
+  document.getElementById('score-num').textContent = score;
+  document.getElementById('score-fill').style.width = (score / total * 100) + '%';
+  document.getElementById('score-pct').textContent = Math.round(score / total * 100) + '%';
+}
+
+function checkAllAnswered() {
+  const total = 10;
+  if (Object.keys(answered).length === total) {
+    const pct = Math.round(score / total * 100);
+    const panel = document.getElementById('results-panel');
+    panel.className = 'results-panel show';
+    document.getElementById('r-score').textContent = score + ' / ' + total;
+    if (pct >= 80) {
+      document.getElementById('r-trophy').textContent = '🏆';
+      document.getElementById('r-title').textContent = 'Excellent work!';
+      document.getElementById('r-msg').textContent = 'You scored ' + pct + '% — you have a strong grasp of sequences.';
+      document.getElementById('r-score').style.color = 'var(--teal)';
+    } else if (pct >= 60) {
+      document.getElementById('r-trophy').textContent = '👍';
+      document.getElementById('r-title').textContent = 'Good effort!';
+      document.getElementById('r-msg').textContent = 'You scored ' + pct + '% — review the slides for any questions you missed.';
+      document.getElementById('r-score').style.color = 'var(--amber)';
+    } else {
+      document.getElementById('r-trophy').textContent = '📖';
+      document.getElementById('r-title').textContent = 'Keep practising!';
+      document.getElementById('r-msg').textContent = 'You scored ' + pct + '% — go back through the lesson slides and try again.';
+      document.getElementById('r-score').style.color = 'var(--coral)';
+    }
+    panel.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+}
+
+function resetPractice() {
+  score = 0; answered = {}; selectedOpts = {}; selectedCBs = {};
+  updateScore();
+  document.getElementById('results-panel').className = 'results-panel';
+
+  for (let q = 1; q <= 10; q++) {
+    const card = document.getElementById('qc' + q);
+    if (card) card.className = 'q-card';
+    const fb = document.getElementById('fb' + q);
+    if (fb) { fb.className = 'feedback'; fb.innerHTML = ''; }
+    const chk = document.getElementById('chk' + q);
+    if (chk) chk.disabled = true;
+  }
+  // reset MCQ
+  [1,2,3,4,5,6,7].forEach(q => {
+    const opts = document.querySelectorAll('#opts' + q + ' .opt-btn');
+    opts.forEach(btn => { btn.className = 'opt-btn'; btn.disabled = false; });
+  });
+  // reset multi
+  document.querySelectorAll('#cb8 .cb-opt').forEach(el => { el.className = 'cb-opt'; });
+  // reset inputs
+  [9,10].forEach(q => {
+    const inp = document.getElementById('inp' + q);
+    if (inp) { inp.value = ''; inp.className = 'q-input'; inp.disabled = false; }
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+/* ──────────────────────────────────────────
+   Homework (Slide 9) logic
+────────────────────────────────────────── */
+let hwAnswered = {};
+let hwScore = 0;
+
+function hwEnable(n) {
+  const seqVal = document.querySelector('input[name="hwseq'+n+'"]:checked');
+  const termVal = document.getElementById('hwt'+n).value.trim();
+  document.getElementById('hwchk'+n).disabled = (!seqVal || termVal === '');
+}
+
+function checkHW(n, correctSeq, correctType, correctTermsHint, explanation) {
+  if (hwAnswered[n]) return;
+  const seqSel = document.querySelector('input[name="hwseq'+n+'"]:checked');
+  const typeSel = document.querySelector('input[name="hwtype'+n+'"]:checked');
+  const termsVal = document.getElementById('hwt'+n).value.trim();
+  const card = document.getElementById('hwc'+n);
+  const fb = document.getElementById('hwfb'+n);
+
+  // Determine correctness
+  const seqCorrect = seqSel && seqSel.value === correctSeq;
+  // If not a sequence, type doesn't matter
+  const typeCorrect = (correctType === null) ? true : (typeSel && typeSel.value === correctType);
+  const termsCorrect = (correctTermsHint === null) ? true : (termsVal.length > 0);
+  const isCorrect = seqCorrect && typeCorrect && termsCorrect;
+
+  // Disable inputs
+  document.getElementById('hwchk'+n).disabled = true;
+  document.getElementById('hwt'+n).disabled = true;
+  document.getElementById('hwt'+n).className = 'hw-terms-input ' + (isCorrect ? 'hw-inp-ok' : (correctTermsHint === null ? '' : 'hw-inp-wrong'));
+  document.querySelectorAll('input[name="hwseq'+n+'"], input[name="hwtype'+n+'"]').forEach(r => r.disabled = true);
+
+  // Show feedback
+  let feedbackBody = '';
+  if (!seqCorrect) {
+    feedbackBody = '<div class="hw-verdict">✗ ' + (correctSeq === 'yes' ? 'This IS a sequence.' : 'This is NOT a sequence.') + '</div>' + explanation;
+  } else if (!typeCorrect) {
+    feedbackBody = '<div class="hw-verdict">✗ Sequence type incorrect — it is ' + correctType + '.</div>' + explanation;
+  } else if (!termsCorrect) {
+    feedbackBody = '<div class="hw-verdict">✗ Please write the sequence terms.</div>' + explanation;
+  } else {
+    feedbackBody = '<div class="hw-verdict">✓ Correct!</div>' + explanation + (correctTermsHint ? '<br><strong style="color:var(--teal)">Terms: ' + correctTermsHint + '</strong>' : '');
+  }
+
+  fb.className = 'hw-feedback show ' + (isCorrect ? 'hw-fb-ok' : 'hw-fb-wrong');
+  fb.innerHTML = feedbackBody;
+  card.className = 'hw-card ' + (isCorrect ? 'hw-ok' : 'hw-wrong');
+
+  hwAnswered[n] = true;
+  if (isCorrect) hwScore++;
+
+  // Update score bar
+  const total = 7;
+  document.getElementById('hw-score-num').textContent = hwScore;
+  document.getElementById('hw-score-fill').style.width = (hwScore / total * 100) + '%';
+  document.getElementById('hw-score-pct').textContent = Math.round(hwScore / total * 100) + '%';
+
+  // Show results when all done
+  if (Object.keys(hwAnswered).length === total) {
+    const pct = Math.round(hwScore / total * 100);
+    const panel = document.getElementById('hw-results-panel');
+    panel.className = 'results-panel show';
+    document.getElementById('hw-r-score').textContent = hwScore + ' / ' + total;
+    if (pct >= 86) {
+      document.getElementById('hw-r-trophy').textContent = '🏆';
+      document.getElementById('hw-r-title').textContent = 'Excellent!';
+      document.getElementById('hw-r-msg').textContent = 'You scored ' + pct + '% — outstanding understanding of sequences!';
+      document.getElementById('hw-r-score').style.color = 'var(--teal)';
+    } else if (pct >= 57) {
+      document.getElementById('hw-r-trophy').textContent = '👍';
+      document.getElementById('hw-r-title').textContent = 'Good work!';
+      document.getElementById('hw-r-msg').textContent = 'You scored ' + pct + '% — review the questions you missed and try again.';
+      document.getElementById('hw-r-score').style.color = 'var(--amber)';
+    } else {
+      document.getElementById('hw-r-trophy').textContent = '📖';
+      document.getElementById('hw-r-title').textContent = 'Keep going!';
+      document.getElementById('hw-r-msg').textContent = 'You scored ' + pct + '% — go back through the lesson slides and retry.';
+      document.getElementById('hw-r-score').style.color = 'var(--coral)';
+    }
+    panel.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+}
+
+function resetHW() {
+  hwAnswered = {}; hwScore = 0;
+  document.getElementById('hw-results-panel').className = 'results-panel';
+  document.getElementById('hw-score-num').textContent = '0';
+  document.getElementById('hw-score-fill').style.width = '0%';
+  document.getElementById('hw-score-pct').textContent = '0%';
+  for (let n = 1; n <= 7; n++) {
+    const card = document.getElementById('hwc'+n);
+    if (card) card.className = 'hw-card';
+    const fb = document.getElementById('hwfb'+n);
+    if (fb) { fb.className = 'hw-feedback'; fb.innerHTML = ''; }
+    const btn = document.getElementById('hwchk'+n);
+    if (btn) btn.disabled = true;
+    const inp = document.getElementById('hwt'+n);
+    if (inp) { inp.value = ''; inp.className = 'hw-terms-input'; inp.disabled = false; }
+    document.querySelectorAll('input[name="hwseq'+n+'"], input[name="hwtype'+n+'"]').forEach(r => {
+      r.checked = false; r.disabled = false;
+    });
+  }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+
+/* ──────────────────────────────────────────
+   Projected homework table — reveal/reset
+────────────────────────────────────────── */
+const hwAnswers = {
+  1: { seq:'yes', type:'infinite', terms:'1, 4, 9, 16, …' },
+  2: { seq:'no',  type:null,       terms:'N/A' },
+  3: { seq:'yes', type:'infinite', terms:'1, 3, 6, 10, …' },
+  4: { seq:'yes', type:'finite',   terms:'32, −16, 8, −4' },
+  5: { seq:'yes', type:'infinite', terms:'1, 3, 7, 15, …' },
+  6: { seq:'yes', type:'finite',   terms:'1, 4, 7, 10, 13' },
+  7: { seq:'no',  type:null,       terms:'N/A' }
+};
+
+function revealAnswers() {
+  for (let n = 1; n <= 7; n++) {
+    const a = hwAnswers[n];
+    const isSeq = a.seq === 'yes';
+    const isFin = a.type === 'finite';
+    const isInf = a.type === 'infinite';
+
+    // Is a sequence col
+    const pa = document.getElementById('p'+n+'a');
+    const pb = document.getElementById('p'+n+'b');
+    if (isSeq) { pa.textContent='✓'; pa.className='blank-cell revealed-tick'; pb.textContent=''; pb.className='blank-cell revealed-na'; }
+    else        { pb.textContent='✓'; pb.className='blank-cell revealed-cross'; pa.textContent=''; pa.className='blank-cell revealed-na'; }
+
+    // Finite / Infinite cols
+    const pc = document.getElementById('p'+n+'c');
+    const pd = document.getElementById('p'+n+'d');
+    if (!isSeq) {
+      pc.textContent='—'; pc.className='blank-cell revealed-na';
+      pd.textContent='—'; pd.className='blank-cell revealed-na';
+    } else if (isFin) {
+      pc.textContent='✓'; pc.className='blank-cell revealed-tick';
+      pd.textContent=''; pd.className='blank-cell revealed-na';
+    } else {
+      pd.textContent='✓'; pd.className='blank-cell revealed-tick';
+      pc.textContent=''; pc.className='blank-cell revealed-na';
+    }
+
+    // Terms
+    const pe = document.getElementById('p'+n+'e');
+    if (!isSeq) { pe.textContent='—'; pe.className='blank-cell revealed-na'; }
+    else        { pe.textContent=a.terms; pe.className='blank-cell revealed-ans'; }
+  }
+  document.getElementById('reveal-btn').textContent = 'Answers shown ✓';
+  document.getElementById('reveal-btn').disabled = true;
+}
+
+function resetProjTable() {
+  for (let n = 1; n <= 7; n++) {
+    ['a','b','c','d','e'].forEach(col => {
+      const el = document.getElementById('p'+n+col);
+      if (el) { el.textContent=''; el.className='blank-cell'; }
+    });
+  }
+  const btn = document.getElementById('reveal-btn');
+  btn.textContent = 'Show Answers';
+  btn.disabled = false;
+}
+
+</script>
+</body>
+</html>
