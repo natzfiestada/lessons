@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pythagorean Theorem Activity by Ms. Natalie</title>
+
+<script>
+  window.MathJax = {
+    tex:{ inlineMath:[['\\(','\\)'],['$','$']], displayMath:[['\\[','\\]'],['$$','$$']] },
+    startup:{ ready(){ MathJax.startup.defaultReady(); } }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+/* ══════════════════════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════════════════════ */
+:root{
+  --bg:       #000000;
+  --surface:  #0c0c0c;
+  --s2:       #141414;
+  --s3:       #1e1e1e;
+  --s4:       #2a2a2a;
+  --accent:   #6c63ff;
+  --accent2:  #ff6584;
+  --gold:     #ffd166;
+  --green:    #06d6a0;
+  --blue:     #4db8ff;
+  --orange:   #ff9500;
+  --red:      #ff4757;
+  --text:     #eef0f8;
+  --muted:    #666b80;
+  --r:        14px;
+  --r-lg:     20px;
+  --shadow:   0 4px 24px rgba(0,0,0,.9);
+  --glow-acc: 0 0 18px rgba(108,99,255,.35);
+  --glow-grn: 0 0 18px rgba(6,214,160,.3);
+  --glow-gld: 0 0 18px rgba(255,209,102,.3);
+  --tr:       .28s cubic-bezier(.4,0,.2,1);
+  --font:     'Nunito',sans-serif;
+  --mono:     'Fira Code',monospace;
+}
+
+/* ══════════════════════════════════════════════════
+   LIGHT MODE TOKEN OVERRIDES
+   Applied when JS adds class "light" to <body>
+══════════════════════════════════════════════════ */
+body.light{
+  --bg:       #f4f6ff;
+  --surface:  #ffffff;
+  --s2:       #eef0fb;
+  --s3:       #e0e3f5;
+  --s4:       #c8cce8;
+  --text:     #1a1d2e;
+  --muted:    #5a6080;
+  --shadow:   0 4px 24px rgba(80,80,160,.12);
+  --glow-acc: 0 0 14px rgba(108,99,255,.2);
+  --glow-grn: 0 0 14px rgba(6,214,160,.18);
+  --glow-gld: 0 0 14px rgba(255,209,102,.2);
+}
+/* Light mode: tri canvas and chalkboard get light backgrounds */
+body.light #triCanvas        { background:#f8f9ff; }
+body.light .tri-wrap         { background:#f8f9ff; border-color:var(--s3); }
+body.light .tri-new-btn      { background:#f8f9ff; border-top-color:var(--s3); }
+body.light #chalkCanvas      { background:#e8f0e8; }
+body.light .bottom-dash      { background:rgba(240,242,255,.97); }
+body.light .zoom-bar         { background:rgba(255,255,255,.9); }
+body.light .tbadge           { background:rgba(255,255,255,.85); }
+
+/* ══════════════════════════════════════════════════
+   RESET
+══════════════════════════════════════════════════ */
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+html{ scroll-behavior:smooth; }
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ══════════════════════════════════════════════════
+   PAGE SHELL  ─  3-row grid: header | workspace | bottom-dash
+══════════════════════════════════════════════════ */
+.page{
+  display:grid;
+  grid-template-rows: auto 1fr auto;
+  min-height:100vh;
+  max-width:1400px;
+  margin:0 auto;
+  padding:12px;
+  gap:12px;
+}
+
+/* ══════════════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════════════ */
+header{
+  display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; gap:10px;
+  padding:14px 20px;
+  background:var(--surface);
+  border-radius:var(--r);
+  border:1px solid var(--s4);
+  box-shadow:var(--shadow);
+}
+.logo{ display:flex; align-items:center; gap:12px; }
+.logo-icon{
+  width:44px; height:44px; border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex; align-items:center; justify-content:center; font-size:20px;
+  box-shadow:var(--glow-acc);
+}
+.logo h1{
+  font-size:1.3rem; font-weight:900;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.logo p{ font-size:.76rem; color:var(--muted); margin-top:2px; }
+.hctrl{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+/* ══════════════════════════════════════════════════
+   WORKSPACE ROW  (top section)
+   Desktop: triangle column | chalkboard column
+   Mobile: stack
+══════════════════════════════════════════════════ */
+.workspace{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  align-items:stretch;   /* both columns same height */
+}
+@media(max-width:720px){ .workspace{ grid-template-columns:1fr; } }
+
+/* ── Left col: triangle + question card ── */
+.left-col{
+  display:flex; flex-direction:column; gap:12px;
+}
+
+/* ══════════════════════════════════════════════════
+   TRIANGLE AREA
+══════════════════════════════════════════════════ */
+.tri-wrap{
+  position:relative;
+  background:#000;
+  border-radius:var(--r);
+  border:1px solid var(--s4);
+  box-shadow:var(--shadow), inset 0 0 60px rgba(108,99,255,.04);
+  overflow:visible;
+  flex:1;            /* grow to fill left col */
+  min-height:300px;
+}
+.tri-wrap.grid-bg::before{
+  content:''; position:absolute; inset:0; pointer-events:none;
+  border-radius:var(--r);
+  background-image:
+    linear-gradient(rgba(108,99,255,.08) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(108,99,255,.08) 1px,transparent 1px);
+  background-size:32px 32px;
+}
+#triCanvas{
+  display:block; width:100%; height:100%;
+  border-radius:var(--r);
+  cursor:grab;
+  user-select:none;
+  position:relative; z-index:1;
+}
+/* Zoom bar */
+.zoom-bar{
+  position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+  display:flex; gap:6px; align-items:center;
+  background:rgba(0,0,0,.8); backdrop-filter:blur(8px);
+  border-radius:99px; padding:5px 12px;
+  border:1px solid var(--s4);
+  z-index:10;
+}
+/* New Question button sits flush below the triangle canvas */
+.tri-new-btn{
+  display:flex; justify-content:center;
+  padding:10px 12px 12px;
+  background:#000;
+  border-top:1px solid var(--s4);
+  border-radius:0 0 var(--r) var(--r);
+}
+.tri-new-btn .btn{
+  width:100%; justify-content:center;
+  font-size:1rem; padding:13px 20px;
+  letter-spacing:.02em;
+}
+.zoom-pct{
+  font-size:.72rem; font-weight:700; color:var(--muted);
+  min-width:36px; text-align:center;
+}
+/* Transform badge */
+.tbadge{
+  position:absolute; top:10px; right:10px; z-index:10;
+  background:rgba(0,0,0,.75); backdrop-filter:blur(4px);
+  border:1px solid var(--s4); border-radius:8px;
+  padding:3px 9px; font-size:.65rem; color:var(--muted); font-weight:600;
+}
+
+/* ══════════════════════════════════════════════════
+   QUESTION CARD
+══════════════════════════════════════════════════ */
+.q-card-wrap{
+  background:var(--surface);
+  border-radius:var(--r);
+  border:1px solid var(--s4);
+  box-shadow:var(--shadow);
+  padding:16px;
+}
+.q-inner{
+  background:linear-gradient(135deg,var(--s2),var(--s3));
+  border-radius:12px; padding:14px; margin-bottom:14px;
+  border-left:4px solid var(--accent);
+  box-shadow:var(--glow-acc);
+}
+.diff-tag{
+  display:inline-block; font-size:.64rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.08em;
+  padding:2px 8px; border-radius:99px; margin-bottom:8px;
+}
+.diff-tag.easy  { background:rgba(6,214,160,.18);  color:var(--green); }
+.diff-tag.medium{ background:rgba(255,209,102,.18); color:var(--gold);  }
+.diff-tag.hard  { background:rgba(255,71,87,.18);   color:var(--red);   }
+.q-text{ font-size:.98rem; font-weight:700; line-height:1.65; }
+.math-box{
+  background:var(--s2); border-radius:10px;
+  padding:12px 16px; margin:10px 0;
+  text-align:center; font-size:1rem; min-height:46px;
+  border:1px solid var(--s3);
+}
+/* Input row */
+.in-row{ display:flex; gap:8px; margin-bottom:10px; }
+.ans-in{
+  flex:1; background:var(--s2); border:2px solid var(--s3);
+  border-radius:12px; padding:12px 16px;
+  font-family:var(--font); font-size:1.1rem; font-weight:700;
+  color:var(--text); outline:none;
+  transition:border-color var(--tr), box-shadow var(--tr);
+}
+.ans-in:focus{ border-color:var(--accent); box-shadow:var(--glow-acc); }
+.ans-in::placeholder{ color:var(--muted); font-weight:400; }
+.ans-in.ok { border-color:var(--green); background:rgba(6,214,160,.08);  box-shadow:var(--glow-grn); }
+.ans-in.bad{ border-color:var(--red);   background:rgba(255,71,87,.08); }
+/* Feedback */
+.fb{
+  border-radius:12px; padding:12px 16px; margin:10px 0;
+  font-weight:700; display:none; animation:slideIn .28s ease;
+}
+@keyframes slideIn{ from{opacity:0;transform:translateY(-7px)} to{opacity:1;transform:translateY(0)} }
+.fb.ok { display:block; background:rgba(6,214,160,.12);  border:1.5px solid var(--green); color:var(--green); }
+.fb.bad{ display:block; background:rgba(255,71,87,.1);   border:1.5px solid var(--red);   color:var(--red);   }
+.fb.tip{ display:block; background:rgba(255,209,102,.1); border:1.5px solid var(--gold);  color:var(--gold);  }
+/* Solution */
+.sol-area{ display:none; margin-top:12px; }
+.sol-title{ font-weight:800; font-size:.88rem; color:var(--gold); margin-bottom:10px; }
+.step{
+  background:var(--s2); border-radius:10px; padding:10px 14px;
+  margin-bottom:6px; border-left:3px solid var(--accent);
+  animation:stepIn .4s ease both; font-size:.9rem;
+}
+@keyframes stepIn{ from{opacity:0;transform:translateX(-10px)} to{opacity:1;transform:translateX(0)} }
+.step-lbl{ font-size:.64rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:4px; }
+
+/* ══════════════════════════════════════════════════
+   CHALKBOARD  (right col, full height)
+══════════════════════════════════════════════════ */
+.chalk-wrap{
+  display:flex; flex-direction:column;
+  background:var(--surface);
+  border-radius:var(--r);
+  border:1px solid var(--s4);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.chalk-header{
+  display:flex; align-items:center; flex-wrap:wrap; gap:8px;
+  padding:9px 14px;
+  background:var(--s2); border-bottom:1px solid var(--s3);
+  flex-shrink:0;
+}
+.chalk-title{ font-size:.74rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+.chalk-tools{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+.tool-btn{
+  border:none; border-radius:8px; padding:5px 10px;
+  font-family:var(--font); font-size:.73rem; font-weight:700;
+  cursor:pointer; background:var(--s3); color:var(--text);
+  transition:all var(--tr); white-space:nowrap;
+}
+.tool-btn.active{ background:var(--accent); color:#fff; box-shadow:var(--glow-acc); }
+.tool-btn:hover:not(.active){ background:var(--s4); }
+.color-dot{
+  width:21px; height:21px; border-radius:50%;
+  border:2px solid transparent; cursor:pointer;
+  transition:border-color var(--tr), box-shadow var(--tr); flex-shrink:0;
+}
+.color-dot.active{ border-color:#fff; box-shadow:0 0 0 2px var(--accent); }
+.size-input{
+  width:42px; background:var(--s3); border:1px solid var(--s4);
+  border-radius:6px; padding:3px 6px; color:var(--text);
+  font-size:.73rem; font-family:var(--font); text-align:center;
+}
+#chalkCanvas{
+  display:block; width:100%; flex:1;
+  background:#0a1a0a;
+  cursor:crosshair; touch-action:none;
+  min-height:260px;
+}
+
+/* ══════════════════════════════════════════════════
+   BOTTOM DASHBOARD
+══════════════════════════════════════════════════ */
+.bottom-dash{
+  background:rgba(12,12,12,.97);
+  border-radius:var(--r-lg);
+  border:1px solid var(--s4);
+  box-shadow: var(--shadow),
+              0 0 40px rgba(108,99,255,.08),
+              inset 0 1px 0 rgba(255,255,255,.04);
+  overflow:hidden;
+}
+
+/* Top strip: stats */
+.dash-stats{
+  display:grid;
+  grid-template-columns: repeat(5,1fr);
+  gap:0;
+  border-bottom:1px solid var(--s3);
+}
+@media(max-width:600px){ .dash-stats{ grid-template-columns:repeat(3,1fr); } }
+
+.stat-chip{
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:18px 10px;
+  position:relative;
+  transition:background var(--tr);
+}
+.stat-chip:not(:last-child)::after{
+  content:''; position:absolute; right:0; top:15%; height:70%;
+  width:1px; background:var(--s3);
+}
+.stat-chip:hover{ background:var(--s2); }
+.stat-v{
+  font-size:2rem; font-weight:900; font-family:var(--mono);
+  line-height:1; margin-bottom:4px;
+  /* per-chip colour set inline */
+}
+.stat-l{
+  font-size:.62rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; color:var(--muted);
+}
+/* neon glow per chip */
+.sv-score  { color:var(--accent);  text-shadow: 0 0 16px rgba(108,99,255,.7); }
+.sv-correct{ color:var(--green);   text-shadow: 0 0 16px rgba(6,214,160,.7); }
+.sv-total  { color:var(--blue);    text-shadow: 0 0 16px rgba(77,184,255,.6); }
+.sv-acc    { color:var(--gold);    text-shadow: 0 0 16px rgba(255,209,102,.7); }
+.sv-streak { color:var(--orange);  text-shadow: 0 0 16px rgba(255,149,0,.7); }
+
+/* Progress bar inside dash */
+.dash-prog{
+  height:4px;
+  background:var(--s3);
+}
+.dash-prog-bar{
+  height:100%;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  transition:width .5s ease;
+  width:0%;
+  box-shadow: 0 0 8px rgba(108,99,255,.6);
+}
+
+/* Bottom strip: controls */
+.dash-controls{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  flex-wrap:wrap;
+  padding:16px 24px;
+}
+.dash-ctrl-group{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.dash-label{
+  font-size:.7rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; color:var(--muted); white-space:nowrap;
+}
+.dash-sep{
+  width:1px; height:32px; background:var(--s3); flex-shrink:0;
+}
+
+/* Pill buttons in the dash */
+.pill-grp{ display:flex; background:var(--s3); border-radius:99px; padding:3px; gap:2px; }
+.pill{
+  border:none; border-radius:99px; padding:7px 16px;
+  font-family:var(--font); font-size:.8rem; font-weight:700;
+  cursor:pointer; background:transparent; color:var(--muted);
+  transition:all var(--tr);
+}
+.pill.on{
+  background:var(--accent); color:#fff;
+  box-shadow: 0 2px 10px rgba(108,99,255,.5);
+}
+.pill:hover:not(.on){ color:var(--text); }
+
+/* Timer section in dash */
+.timer-section{
+  display:flex; align-items:center; gap:12px; margin-left:auto;
+  flex-wrap:wrap;
+}
+.timer-num{
+  font-size:2rem; font-weight:900; font-family:var(--mono);
+  color:var(--gold); text-shadow:var(--glow-gld);
+  line-height:1; min-width:52px; text-align:center;
+}
+.timer-num.hot{ color:var(--red); text-shadow:0 0 16px rgba(255,71,87,.7); animation:blink .5s ease infinite alternate; }
+@keyframes blink{ to{ opacity:.6; } }
+#timerRes{ font-size:.82rem; font-weight:700; color:var(--gold); }
+
+/* ══════════════════════════════════════════════════
+   SHARED BUTTON STYLES
+══════════════════════════════════════════════════ */
+.btn{
+  border:none; border-radius:12px; padding:10px 16px;
+  font-family:var(--font); font-size:.84rem; font-weight:800;
+  cursor:pointer; transition:all var(--tr);
+  display:inline-flex; align-items:center; gap:6px; white-space:nowrap;
+}
+.btn:active{ transform:scale(.96); }
+.btn-p{  background:linear-gradient(135deg,var(--accent),#8b82ff); color:#fff; box-shadow:0 4px 14px rgba(108,99,255,.45); }
+.btn-p:hover{ box-shadow:0 6px 18px rgba(108,99,255,.65); transform:translateY(-1px); }
+.btn-ok{ background:linear-gradient(135deg,var(--green),#05b384);  color:#fff; box-shadow:0 4px 12px rgba(6,214,160,.35); }
+.btn-ok:hover{ box-shadow:0 6px 16px rgba(6,214,160,.55); transform:translateY(-1px); }
+.btn-s{  background:var(--s3); color:var(--text); }
+.btn-s:hover{ background:var(--s4); }
+.btn-d{  background:linear-gradient(135deg,var(--orange),#ff6b00); color:#fff; }
+.btn-g{  background:linear-gradient(135deg,var(--gold),#ffb700);   color:#111; }
+.btn-sm{ padding:6px 12px; font-size:.74rem; border-radius:8px; }
+.btn-icon{
+  width:34px; height:34px; border-radius:10px; border:none;
+  background:var(--s3); color:var(--text); font-size:.95rem;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:all var(--tr);
+}
+.btn-icon:hover{ background:var(--s4); transform:scale(1.08); }
+.btn-row{ display:flex; gap:8px; flex-wrap:wrap; }
+
+/* ══════════════════════════════════════════════════
+   SIDEBAR PANELS (hints + badges) – now inside dash
+══════════════════════════════════════════════════ */
+.side-panels{
+  display:flex; gap:16px; padding:16px 24px;
+  border-top:1px solid var(--s3);
+  flex-wrap:wrap;
+}
+.side-panel{
+  flex:1; min-width:220px;
+}
+.side-panel-title{
+  font-size:.68rem; font-weight:700; text-transform:uppercase;
+  letter-spacing:.1em; color:var(--muted); margin-bottom:10px;
+}
+/* Settings toggles inside side panel */
+.toggle-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:9px; }
+.toggle-lbl{ font-size:.82rem; font-weight:600; }
+.tog{
+  width:38px; height:21px; background:var(--s4);
+  border-radius:99px; cursor:pointer; position:relative;
+  transition:background var(--tr); border:none; flex-shrink:0;
+}
+.tog.on{ background:var(--accent); box-shadow:var(--glow-acc); }
+.tog::after{
+  content:''; position:absolute; width:15px; height:15px;
+  border-radius:50%; background:#fff;
+  top:3px; left:3px; transition:transform var(--tr);
+  box-shadow:0 1px 4px rgba(0,0,0,.4);
+}
+.tog.on::after{ transform:translateX(17px); }
+/* Hint panel */
+.hint-ct{ font-size:.76rem; color:var(--muted); margin-bottom:8px; }
+#hintArea{ font-size:.84rem; line-height:1.65; }
+/* Badge grid */
+.badges-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.badge{
+  aspect-ratio:1; border-radius:10px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:3px; font-size:1.2rem; background:var(--s3); transition:all var(--tr);
+}
+.badge.lit{ background:var(--s2); box-shadow:0 0 0 2px var(--gold), var(--glow-gld); }
+.badge:not(.lit){ filter:grayscale(1) opacity(.3); }
+.badge .bn{ font-size:.5rem; font-weight:700; text-align:center; color:var(--muted); line-height:1.2; }
+.badge.lit .bn{ color:var(--gold); }
+
+/* ══════════════════════════════════════════════════
+   CONFETTI
+══════════════════════════════════════════════════ */
+.confetti-box{ position:fixed; inset:0; pointer-events:none; z-index:9999; overflow:hidden; }
+.cp{ position:absolute; border-radius:2px; animation:fall linear forwards; }
+@keyframes fall{ 0%{transform:translateY(-20px) rotate(0);opacity:1} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+
+/* ══════════════════════════════════════════════════
+   PRINT
+══════════════════════════════════════════════════ */
+@media print{
+  body{ background:#fff!important; color:#000!important; }
+  .bottom-dash, .hctrl, .btn-row, .in-row{ display:none!important; }
+  .workspace{ grid-template-columns:1fr!important; }
+}
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE TWEAKS
+══════════════════════════════════════════════════ */
+@media(max-width:900px){
+  .dash-stats{ grid-template-columns:repeat(3,1fr); }
+  .timer-section{ margin-left:0; }
+}
+@media(max-width:600px){
+  .dash-stats{ grid-template-columns:repeat(2,1fr); }
+  .stat-v{ font-size:1.5rem; }
+  .dash-controls{ padding:12px 16px; gap:12px; }
+  .side-panels{ padding:12px 16px; }
+  .btn{ padding:9px 11px; font-size:.8rem; }
+}
+</style>
+</head>
+<body>
+<div class="confetti-box" id="confBox"></div>
+
+<div class="page">
+
+<!-- ══════════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════════════ -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">📐</div>
+    <div>
+      <h1>Pythagorean Theorem Activity</h1>
+      <p>by Ms. Natalie · Right Triangle Practice</p>
+    </div>
+  </div>
+  <div class="hctrl">
+    <button class="btn-icon" id="btnDark"  title="Toggle dark/light">🌙</button>
+    <button class="btn-icon" id="btnSound" title="Toggle sound">🔊</button>
+    <button class="btn-icon" title="Print worksheet" onclick="window.print()">🖨️</button>
+    <button class="btn btn-d btn-sm" id="btnReset">↺ Reset</button>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════
+     WORKSPACE  (top section: triangle | chalkboard)
+══════════════════════════════════════════════════ -->
+<div class="workspace">
+
+  <!-- ── Left col: triangle + question ───────── -->
+  <div class="left-col">
+
+    <!-- Triangle canvas -->
+    <div class="tri-wrap" id="triWrap">
+      <span class="tbadge" id="tBadge">standard orientation</span>
+      <canvas id="triCanvas"></canvas>
+      <div class="zoom-bar">
+        <button class="btn-icon btn-sm" id="btnZoomOut" title="Zoom out (−)">−</button>
+        <span class="zoom-pct" id="zoomPct">100%</span>
+        <button class="btn-icon btn-sm" id="btnZoomIn"  title="Zoom in (+)">+</button>
+        <button class="btn-icon btn-sm" id="btnZoomRst" title="Reset (0)">⊙</button>
+      </div>
+      <!-- New Question button directly below the visual -->
+      <div class="tri-new-btn">
+        <button class="btn btn-ok" id="btnNew">▶ New Question</button>
+      </div>
+    </div>
+
+    <!-- Question card -->
+    <div class="q-card-wrap">
+      <div class="q-inner" id="qCard">
+        <span class="diff-tag easy" id="diffTag">Easy</span>
+        <div class="q-text" id="qText">Press <strong>New Question</strong> to begin!</div>
+        <div class="math-box" id="mathBox">\( a^2 + b^2 = c^2 \)</div>
+      </div>
+      <div class="in-row">
+        <input type="number" class="ans-in" id="ansIn"
+               placeholder="Your answer…" step="0.1" min="0" autocomplete="off">
+        <button class="btn btn-p" id="btnCheck">✓ Check</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-s"  id="btnHint">💡 Hint</button>
+        <button class="btn btn-g"  id="btnSol">📖 Solution</button>
+      </div>
+      <div class="fb" id="fb"></div>
+      <div class="sol-area" id="solArea">
+        <div class="sol-title">📖 Step-by-Step Solution</div>
+        <div id="solSteps"></div>
+      </div>
+    </div>
+  </div><!-- /left-col -->
+
+  <!-- ── Right col: chalkboard ────────────────── -->
+  <div class="chalk-wrap">
+    <div class="chalk-header">
+      <span class="chalk-title">🖊 Working Space</span>
+      <div class="chalk-tools">
+        <button class="tool-btn active" id="toolPen"    >✏️ Pen</button>
+        <button class="tool-btn"        id="toolLine"   >📏 Line</button>
+        <button class="tool-btn"        id="toolEraser" >🧹 Eraser</button>
+        <div class="color-dot active" style="background:#fff"    data-c="#ffffff"></div>
+        <div class="color-dot"        style="background:#7fffb5" data-c="#7fffb5"></div>
+        <div class="color-dot"        style="background:#ffd166" data-c="#ffd166"></div>
+        <div class="color-dot"        style="background:#ff9500" data-c="#ff9500"></div>
+        <div class="color-dot"        style="background:#4db8ff" data-c="#4db8ff"></div>
+        <div class="color-dot"        style="background:#ff6584" data-c="#ff6584"></div>
+        <input class="size-input" type="number" id="brushSize" value="3" min="1" max="30" title="Size">
+        <button class="tool-btn" id="chalkGrid">⊞ Grid</button>
+        <button class="tool-btn" id="btnUndo"  >↩ Undo</button>
+        <button class="tool-btn" id="btnClear" >🗑 Clear</button>
+      </div>
+    </div>
+    <canvas id="chalkCanvas"></canvas>
+  </div><!-- /chalk-wrap -->
+
+</div><!-- /workspace -->
+
+<!-- ══════════════════════════════════════════════
+     BOTTOM DASHBOARD
+══════════════════════════════════════════════════ -->
+<div class="bottom-dash">
+
+  <!-- Stats row -->
+  <div class="dash-stats">
+    <div class="stat-chip">
+      <span class="stat-v sv-score"   id="vScore">0</span>
+      <span class="stat-l">Score</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-v sv-correct" id="vCorrect">0</span>
+      <span class="stat-l">Correct</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-v sv-total"   id="vTotal">0</span>
+      <span class="stat-l">Total</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-v sv-acc"     id="vAcc">—</span>
+      <span class="stat-l">Accuracy</span>
+    </div>
+    <div class="stat-chip">
+      <span class="stat-v sv-streak"  id="vStreak">0🔥</span>
+      <span class="stat-l">Streak</span>
+    </div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="dash-prog"><div class="dash-prog-bar" id="progBar"></div></div>
+
+  <!-- Controls row -->
+  <div class="dash-controls">
+
+    <!-- Difficulty selector -->
+    <div class="dash-ctrl-group">
+      <span class="dash-label">Difficulty</span>
+      <div class="pill-grp" id="grpDiff">
+        <button class="pill on" data-d="easy">Easy</button>
+        <button class="pill"    data-d="medium">Medium</button>
+        <button class="pill"    data-d="hard">Hard</button>
+      </div>
+    </div>
+
+    <div class="dash-sep"></div>
+
+    <!-- Missing side selector -->
+    <div class="dash-ctrl-group">
+      <span class="dash-label">Missing Side</span>
+      <div class="pill-grp" id="grpMode">
+        <button class="pill on" data-m="mixed">Mixed</button>
+        <button class="pill"    data-m="hyp">Hyp (c)</button>
+        <button class="pill"    data-m="leg">Leg (a/b)</button>
+      </div>
+    </div>
+
+    <div class="dash-sep"></div>
+
+    <!-- Timer -->
+    <div class="timer-section">
+      <span class="dash-label">⏱ Timer</span>
+      <span class="timer-num" id="timerDisp">60</span>
+      <button class="btn btn-g btn-sm" id="btnTimer">Start 60s</button>
+      <span id="timerRes"></span>
+    </div>
+
+  </div><!-- /dash-controls -->
+
+  <!-- Side panels: settings | hints | achievements -->
+  <div class="side-panels">
+
+    <!-- Settings -->
+    <div class="side-panel">
+      <div class="side-panel-title">⚙ Settings</div>
+      <div class="toggle-row"><span class="toggle-lbl">Sound effects</span>    <button class="tog on" id="togSound"></button></div>
+      <div class="toggle-row"><span class="toggle-lbl">Dark mode</span>        <button class="tog on" id="togDark"></button></div>
+      <div class="toggle-row"><span class="toggle-lbl">Triangle grid</span>   <button class="tog"    id="togGrid"></button></div>
+      <div class="toggle-row"><span class="toggle-lbl">Adaptive difficulty</span><button class="tog" id="togAdapt"></button></div>
+    </div>
+
+    <!-- Hints -->
+    <div class="side-panel">
+      <div class="side-panel-title">💡 Hints</div>
+      <div class="hint-ct" id="hintCt">Hints used: 0 / 3</div>
+      <div id="hintArea"></div>
+    </div>
+
+    <!-- Achievements -->
+    <div class="side-panel" style="min-width:260px">
+      <div class="side-panel-title">🏆 Achievements</div>
+      <div class="badges-grid" id="badgeGrid"></div>
+    </div>
+
+  </div><!-- /side-panels -->
+
+</div><!-- /bottom-dash -->
+
+</div><!-- /page -->
+
+<script>
+/* ================================================================
+   PYTHAGORAS EXPLORER  —  complete JS
+   Layout: top = triangle | chalkboard, bottom = stats + controls
+   ================================================================ */
+
+// ── STATE ─────────────────────────────────────────────────────────
+const S = {
+  score:0, correct:0, total:0, streak:0, wrongTries:0,
+  hintsUsed:0, diff:'easy', mode:'mixed',
+  q:null, answered:false,
+  sound:true, dark:true, grid:false, adaptive:false,
+  zoom:1, panX:0, panY:0,
+  timerOn:false, timerSec:60, timerTick:null, timerScore:0,
+  badges:{},
+  xform:{ rot:0, fx:1, fy:1 }
+};
+
+// ── TRIPLE BANK ───────────────────────────────────────────────────
+const TRIPLES=[
+  {a:3,b:4,c:5},{a:5,b:12,c:13},{a:8,b:15,c:17},{a:7,b:24,c:25},
+  {a:9,b:12,c:15},{a:6,b:8,c:10},{a:20,b:21,c:29},{a:9,b:40,c:41},
+  {a:12,b:16,c:20},{a:15,b:20,c:25},{a:10,b:24,c:26}
+];
+
+/* ── QUESTION GENERATOR ─────────────────────────────────────────
+   All GIVEN sides are always integers.
+   Leg-missing: built from two integer legs → integer c derived,
+   so c > both legs is structurally guaranteed.
+   ──────────────────────────────────────────────────────────────── */
+function genQ(){
+  const diff = S.adaptive ? adaptDiff() : S.diff;
+  let missing;
+  if      (S.mode==='hyp') missing='c';
+  else if (S.mode==='leg') missing=Math.random()<.5?'a':'b';
+  else                     missing=['a','b','c'][Math.floor(Math.random()*3)];
+
+  let ga,gb,gc,raw;
+
+  if(diff==='easy'){
+    const t=TRIPLES[ri(0,TRIPLES.length-1)];
+    ga=t.a; gb=t.b; gc=t.c;
+    raw = missing==='a'?ga : missing==='b'?gb : gc;
+    if(missing==='a') ga=null;
+    else if(missing==='b') gb=null;
+    else gc=null;
+  } else {
+    const lo=diff==='medium'?3:8, hi=diff==='medium'?15:30;
+    const legA=ri(lo,hi), legB=ri(lo,hi);
+    const hyp=Math.sqrt(legA*legA+legB*legB);
+    if(missing==='c'){
+      ga=legA; gb=legB; gc=null; raw=hyp;
+    } else if(missing==='a'){
+      const ic=Math.ceil(hyp)+ri(0,3);
+      raw=Math.sqrt(ic*ic-legB*legB);
+      if(isNaN(raw)||raw<=0) return genQ();
+      ga=null; gb=legB; gc=ic;
+    } else {
+      const ic=Math.ceil(hyp)+ri(0,3);
+      raw=Math.sqrt(ic*ic-legA*legA);
+      if(isNaN(raw)||raw<=0) return genQ();
+      ga=legA; gb=null; gc=ic;
+    }
+  }
+
+  // Final validity check
+  if(missing!=='c'){
+    const kA=ga??raw, kB=gb??raw, kC=gc;
+    if(kC<=kA||kC<=kB||kC*kC<kA*kA+kB*kB-0.01) return genQ();
+  }
+
+  const isPerfect=Math.abs(raw-Math.round(raw))<0.001;
+  const ans=isPerfect?Math.round(raw):Math.round(raw*10)/10;
+  // Pick a random unit of measurement for this question
+  const UNITS=['cm','m','mm','km','ft','in','yd'];
+  const unit=UNITS[ri(0,UNITS.length-1)];
+  return {a:ga,b:gb,c:gc,missing,ans,raw,isPerfect,diff,unit};
+}
+
+function adaptDiff(){
+  const a=S.total>0?S.correct/S.total:0;
+  if(a>.8&&S.total>=5) return 'hard';
+  if(a>.6||S.total>=3) return 'medium';
+  return 'easy';
+}
+function ri(mn,mx){ return Math.floor(Math.random()*(mx-mn+1))+mn; }
+
+// ── LOAD QUESTION ─────────────────────────────────────────────────
+function loadQ(q){
+  S.q=q; S.answered=false; S.wrongTries=0; S.hintsUsed=0;
+  S.panX=0; S.panY=0;
+  const ai=el('ansIn');
+  ai.value=''; ai.className='ans-in'; ai.disabled=false;
+  el('fb').className='fb';
+  el('solArea').style.display='none';
+  el('hintArea').innerHTML='';
+  el('hintCt').textContent='Hints used: 0 / 3';
+
+  const dt=el('diffTag');
+  dt.textContent=q.diff[0].toUpperCase()+q.diff.slice(1);
+  dt.className='diff-tag '+q.diff;
+
+  const u=q.unit;
+  let qStr='';
+  if(q.missing==='c')      qStr=`Find the hypotenuse \\(c\\) (in ${u}) of a right triangle with legs \\(a=${q.a}\\,\\text{${u}}\\) and \\(b=${q.b}\\,\\text{${u}}\\).`;
+  else if(q.missing==='a') qStr=`Find leg \\(a\\) (in ${u}) given \\(b=${q.b}\\,\\text{${u}}\\) and hypotenuse \\(c=${q.c}\\,\\text{${u}}\\).`;
+  else                     qStr=`Find leg \\(b\\) (in ${u}) given \\(a=${q.a}\\,\\text{${u}}\\) and hypotenuse \\(c=${q.c}\\,\\text{${u}}\\).`;
+  el('qText').innerHTML=qStr;
+
+  let formula='';
+  if(q.missing==='c')      formula=`\\[${q.a}^2+${q.b}^2=c^2 \\quad (\\text{${u}})\\]`;
+  else if(q.missing==='a') formula=`\\[a^2+${q.b}^2=${q.c}^2 \\quad (\\text{${u}})\\]`;
+  else                     formula=`\\[${q.a}^2+b^2=${q.c}^2 \\quad (\\text{${u}})\\]`;
+  el('mathBox').innerHTML=formula;
+
+  renderMath();
+  randXform();
+  drawTri();
+}
+
+function renderMath(){
+  if(window.MathJax) MathJax.typesetPromise().catch(()=>{});
+}
+
+// ── TRIANGLE DRAWING ──────────────────────────────────────────────
+const TC=el('triCanvas');
+const tcx=TC.getContext('2d');
+
+function randXform(){
+  const rots=[0,45,90,135,180,225,270,315];
+  S.xform={ rot:rots[ri(0,rots.length-1)], fx:Math.random()<.4?-1:1, fy:Math.random()<.3?-1:1 };
+  const parts=[];
+  if(S.xform.rot!==0)  parts.push(`${S.xform.rot}° rotation`);
+  if(S.xform.fx===-1)  parts.push('H-flip');
+  if(S.xform.fy===-1)  parts.push('V-flip');
+  el('tBadge').textContent=parts.length?parts.join(', '):'standard orientation';
+}
+
+function resizeTri(){
+  const wrap=el('triWrap');
+  const W=Math.max(wrap.clientWidth,180);
+  const H=Math.max(Math.min(Math.round(W*0.82),500),260);
+  TC.width=W; TC.height=H;
+  drawTri();
+}
+
+function drawTri(){
+  const W=TC.width, H=TC.height;
+  tcx.clearRect(0,0,W,H);
+  if(S.grid) drawTriGrid(W,H);
+  const q=S.q; if(!q) return;
+
+  const sA=q.a??q.raw, sB=q.b??q.raw;
+  const maxLen=Math.min(W,H)*0.36;
+  const sf=maxLen/Math.max(sA,sB);
+  const pA=sA*sf*S.zoom, pB=sB*sf*S.zoom;
+
+  // Vertices: right angle at P0, leg-a to P1, leg-b to P2
+  const raw=[{x:0,y:0},{x:pA,y:0},{x:0,y:pB}];
+  const cx=W/2+S.panX, cy=H/2+S.panY;
+  const pts=raw.map(p=>xfm(p.x,p.y,cx,cy,S.xform));
+
+  // Fill
+  tcx.beginPath();
+  tcx.moveTo(pts[0].x,pts[0].y);
+  tcx.lineTo(pts[1].x,pts[1].y);
+  tcx.lineTo(pts[2].x,pts[2].y);
+  tcx.closePath();
+  tcx.fillStyle='rgba(108,99,255,.07)';
+  tcx.fill();
+
+  // Sides
+  drawSide(pts[0],pts[1],'a',q.missing==='a',q.a,W,H,q.unit);
+  drawSide(pts[0],pts[2],'b',q.missing==='b',q.b,W,H,q.unit);
+  drawSide(pts[1],pts[2],'c',q.missing==='c',q.c,W,H,q.unit);
+  drawRA(pts[0],pts[1],pts[2]);
+}
+
+function xfm(x,y,cx,cy,t){
+  x*=t.fx; y*=t.fy;
+  const r=t.rot*Math.PI/180;
+  return {x:cx+x*Math.cos(r)-y*Math.sin(r), y:cy+x*Math.sin(r)+y*Math.cos(r)};
+}
+
+function drawSide(p1,p2,lbl,isMissing,val,W,H,unit){
+  const KNOWN='#4db8ff', MISS='#ff9500';
+
+  // ── Draw the line ───────────────────────────────
+  tcx.beginPath(); tcx.moveTo(p1.x,p1.y); tcx.lineTo(p2.x,p2.y);
+  tcx.lineWidth=isMissing?5:3.5;
+  tcx.strokeStyle=isMissing?MISS:KNOWN;
+  tcx.setLineDash(isMissing?[12,7]:[]);
+  tcx.lineCap='round';
+  tcx.stroke(); tcx.setLineDash([]); tcx.lineCap='butt';
+
+  // ── Label position: perpendicular offset from midpoint ─
+  const mx=(p1.x+p2.x)/2, my=(p1.y+p2.y)/2;
+  const dx=p2.x-p1.x, dy=p2.y-p1.y;
+  const len=Math.sqrt(dx*dx+dy*dy)||1;
+  let nx=-dy/len, ny=dx/len;
+  // Always point away from canvas centre
+  if((mx+nx*10-W/2)*nx+(my+ny*10-H/2)*ny<0){nx=-nx;ny=-ny;}
+  const OFFSET=46;                     // extra offset for larger letters
+  const lx=mx+nx*OFFSET, ly=my+ny*OFFSET;
+
+  tcx.save();
+  tcx.textAlign='center'; tcx.textBaseline='middle';
+
+  if(isMissing){
+    // ── Missing side: large "?" with big side letter below ──
+    tcx.font='bold 34px Nunito,sans-serif';
+    tcx.shadowColor=MISS; tcx.shadowBlur=22; tcx.fillStyle=MISS;
+    tcx.fillText('?', lx, ly);
+    tcx.shadowBlur=0;
+    // Side letter — large and clearly readable
+    tcx.font='bold 26px Nunito,sans-serif';
+    tcx.fillStyle='rgba(255,149,0,.9)';
+    tcx.shadowColor=MISS; tcx.shadowBlur=10;
+    tcx.fillText('('+lbl+')', lx, ly+36);
+    tcx.shadowBlur=0;
+
+  } else {
+    // ── Known side: value + unit on one line, big letter below ─
+    const unitStr = unit ? ' '+unit : '';
+    const valStr  = (val !== null ? val : '?') + unitStr;
+
+    // Pill background for readability
+    tcx.font='bold 20px Nunito,sans-serif';
+    const textW = tcx.measureText(valStr).width;
+    const padX=10, padY=6, boxH=30;
+    tcx.fillStyle='rgba(0,0,0,.6)';
+    roundRect(tcx, lx-textW/2-padX, ly-boxH/2-padY/2, textW+padX*2, boxH+padY, 8);
+    tcx.fill();
+
+    // Value + unit text
+    tcx.fillStyle=KNOWN;
+    tcx.shadowColor='rgba(77,184,255,.6)'; tcx.shadowBlur=10;
+    tcx.fillText(valStr, lx, ly);
+    tcx.shadowBlur=0;
+
+    // Side letter — large, bold, glowing
+    tcx.font='bold 26px Nunito,sans-serif';
+    tcx.fillStyle='rgba(77,184,255,.95)';
+    tcx.shadowColor='rgba(77,184,255,.5)'; tcx.shadowBlur=12;
+    tcx.fillText(lbl, lx, ly+34);
+    tcx.shadowBlur=0;
+  }
+  tcx.restore();
+}
+
+// Helper: draw a rounded rectangle path
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
+}
+
+function drawRA(P0,P1,P2){
+  const SZ=13;
+  const u1=unit(P0,P1), u2=unit(P0,P2);
+  const sq=[P0,
+    {x:P0.x+u1.x*SZ,y:P0.y+u1.y*SZ},
+    {x:P0.x+u1.x*SZ+u2.x*SZ,y:P0.y+u1.y*SZ+u2.y*SZ},
+    {x:P0.x+u2.x*SZ,y:P0.y+u2.y*SZ}];
+  tcx.beginPath();
+  sq.forEach((p,i)=>i===0?tcx.moveTo(p.x,p.y):tcx.lineTo(p.x,p.y));
+  tcx.closePath();
+  tcx.strokeStyle='rgba(255,255,255,.45)'; tcx.lineWidth=1.5; tcx.stroke();
+}
+
+function unit(A,B){
+  const dx=B.x-A.x, dy=B.y-A.y, l=Math.sqrt(dx*dx+dy*dy)||1;
+  return {x:dx/l,y:dy/l};
+}
+
+function drawTriGrid(W,H){
+  tcx.save();
+  tcx.strokeStyle='rgba(108,99,255,.12)'; tcx.lineWidth=1;
+  for(let x=0;x<=W;x+=32){tcx.beginPath();tcx.moveTo(x,0);tcx.lineTo(x,H);tcx.stroke();}
+  for(let y=0;y<=H;y+=32){tcx.beginPath();tcx.moveTo(0,y);tcx.lineTo(W,y);tcx.stroke();}
+  tcx.restore();
+}
+
+// ── ZOOM ──────────────────────────────────────────────────────────
+function setZoom(z){ S.zoom=Math.max(.3,Math.min(3,z)); el('zoomPct').textContent=Math.round(S.zoom*100)+'%'; drawTri(); }
+el('btnZoomIn') .addEventListener('click',()=>setZoom(S.zoom+.2));
+el('btnZoomOut').addEventListener('click',()=>setZoom(S.zoom-.2));
+el('btnZoomRst').addEventListener('click',()=>setZoom(1));
+TC.addEventListener('wheel',e=>{e.preventDefault();setZoom(S.zoom-e.deltaY*.001);},{passive:false});
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT') return;
+  if(e.key==='+') setZoom(S.zoom+.15);
+  if(e.key==='-') setZoom(S.zoom-.15);
+  if(e.key==='0') setZoom(1);
+});
+
+// ── TRIANGLE DRAG ─────────────────────────────────────────────────
+;(function(){
+  let drag=false, sx=0, sy=0, px0=0, py0=0;
+  function pos(e){ const s=e.touches?e.touches[0]:e; return {x:s.clientX,y:s.clientY}; }
+  TC.addEventListener('mousedown',e=>{drag=true;TC.style.cursor='grabbing';const p=pos(e);sx=p.x;sy=p.y;px0=S.panX;py0=S.panY;e.preventDefault();});
+  window.addEventListener('mousemove',e=>{if(!drag)return;const p=pos(e);S.panX=px0+(p.x-sx);S.panY=py0+(p.y-sy);drawTri();});
+  window.addEventListener('mouseup',()=>{if(drag){drag=false;TC.style.cursor='grab';}});
+  TC.addEventListener('touchstart',e=>{drag=true;const p=pos(e);sx=p.x;sy=p.y;px0=S.panX;py0=S.panY;e.preventDefault();},{passive:false});
+  TC.addEventListener('touchmove',e=>{if(!drag)return;const p=pos(e);S.panX=px0+(p.x-sx);S.panY=py0+(p.y-sy);drawTri();e.preventDefault();},{passive:false});
+  TC.addEventListener('touchend',()=>{drag=false;});
+})();
+
+// ── CHECK ANSWER ──────────────────────────────────────────────────
+function checkAns(){
+  if(S.answered||!S.q) return;
+  const raw=el('ansIn').value.trim();
+  if(!raw){ showFB('tip','Please enter your answer first!'); return; }
+  const val=parseFloat(raw);
+  if(isNaN(val)||val<=0){ showFB('tip','Enter a positive number.'); return; }
+  const q=S.q;
+  const dec=raw.match(/\.(\d+)/);
+  if(!q.isPerfect&&dec&&dec[1].length>1){ showFB('tip','Round your answer to 1 decimal place (e.g. 6.4)'); return; }
+  if(q.isPerfect&&dec){ showFB('tip','This answer is a whole number — no decimal needed.'); return; }
+  const tol=q.isPerfect?0:0.05;
+  if(Math.abs(val-q.ans)<=tol) doCorrect();
+  else {
+    S.wrongTries++;
+    S.streak=0;
+    el('ansIn').className='ans-in bad';
+    playSound('wrong');
+    if(S.wrongTries>=2){ showFB('bad','Not quite — check the hint below!'); autoHint(); }
+    else showFB('bad','Not quite right. Try again!');
+  }
+}
+
+function doCorrect(){
+  S.answered=true;
+  S.score+=pts(); S.correct++; S.total++; S.streak++;
+  el('ansIn').className='ans-in ok'; el('ansIn').disabled=true;
+  const msgs=['Excellent! 🎉','Great Job! 🌟','Brilliant! ✨','Perfect! 💎','Awesome! 🚀','Well done! 👏'];
+  showFB('ok',msgs[ri(0,msgs.length-1)]);
+  updateScore(); confetti(); playSound('correct'); checkBadges();
+  if(S.timerOn) S.timerScore++;
+}
+
+function pts(){
+  const base={easy:10,medium:20,hard:30}[S.q.diff]||10;
+  return Math.round(base*(S.hintsUsed===0&&S.wrongTries===0?1.5:1));
+}
+
+function updateScore(){
+  el('vScore').textContent=S.score;
+  el('vCorrect').textContent=S.correct;
+  el('vTotal').textContent=S.total;
+  const a=S.total>0?Math.round(S.correct/S.total*100):0;
+  el('vAcc').textContent=S.total>0?a+'%':'—';
+  el('vStreak').textContent=S.streak+'🔥';
+  el('progBar').style.width=Math.min((S.total%20)/20*100,100)+'%';
+}
+
+function showFB(type,msg){ const e=el('fb'); e.className='fb '+type; e.innerHTML=msg; renderMath(); }
+
+// ── HINTS ─────────────────────────────────────────────────────────
+const HFNS=[
+  q=>q.missing==='c'?'Hint 1: \\(c\\) is the hypotenuse — the side opposite the right angle.'
+      :`Hint 1: The hypotenuse \\(c=${q.c}\\) is the longest side. Find the shorter leg.`,
+  q=>q.missing==='c'?`Hint 2: Use \\(c=\\sqrt{a^2+b^2}=\\sqrt{${q.a}^2+${q.b}^2}\\)`
+      :q.missing==='a'?`Hint 2: Rearrange → \\(a^2=c^2-b^2=${q.c}^2-${q.b}^2\\)`
+      :`Hint 2: Rearrange → \\(b^2=c^2-a^2=${q.c}^2-${q.a}^2\\)`,
+  q=>{
+    if(q.missing==='c'){ const s=q.a*q.a+q.b*q.b; return `Hint 3: \\(${q.a}^2+${q.b}^2=${s}\\). Find \\(\\sqrt{${s}}\\).`; }
+    if(q.missing==='a'){ const s=q.c*q.c-q.b*q.b; return `Hint 3: \\(${q.c}^2-${q.b}^2=${s}\\). Find \\(\\sqrt{${s}}\\).`; }
+    const s=q.c*q.c-q.a*q.a; return `Hint 3: \\(${q.c}^2-${q.a}^2=${s}\\). Find \\(\\sqrt{${s}}\\).`;
+  }
+];
+
+function showHint(){
+  if(!S.q||S.answered) return;
+  if(S.hintsUsed>=3){ el('hintArea').innerHTML+='<em style="color:var(--muted)">No more hints!</em>'; return; }
+  const h=HFNS[S.hintsUsed](S.q);
+  el('hintArea').innerHTML+=`<div style="margin-bottom:8px;padding:8px 10px;background:var(--s2);border-radius:8px;border-left:3px solid var(--gold)">${h}</div>`;
+  S.hintsUsed++;
+  el('hintCt').textContent=`Hints used: ${S.hintsUsed} / 3`;
+  renderMath(); playSound('hint');
+}
+function autoHint(){ if(S.hintsUsed<3) showHint(); }
+
+// ── SOLUTION ──────────────────────────────────────────────────────
+function showSol(){
+  if(!S.q) return;
+  if(!S.answered){ S.total++; updateScore(); }
+  el('ansIn').disabled=true;
+  el('solArea').style.display='block';
+  el('solSteps').innerHTML='';
+  const q=S.q;
+  let steps=[];
+  const u=q.unit||'';
+  const unitTex=u?`\\,\\text{${u}}`:'';
+  if(q.missing==='c'){
+    const s=q.a*q.a+q.b*q.b;
+    steps=[
+      {t:'Formula',      m:`\\[a^2+b^2=c^2\\]`},
+      {t:'Substitute',   m:`\\[${q.a}^2+${q.b}^2=c^2\\]`},
+      {t:'Square',       m:`\\[${q.a*q.a}+${q.b*q.b}=c^2\\]`},
+      {t:'Add',          m:`\\[${s}=c^2\\]`},
+      {t:'Square root',  m:q.isPerfect?`\\[c=\\sqrt{${s}}=${q.ans}${unitTex}\\]`:`\\[c=\\sqrt{${s}}${unitTex}\\]`},
+      ...(q.isPerfect?[]:[{t:'Round',m:`\\[c\\approx${q.ans}${unitTex}\\]`}])
+    ];
+  } else if(q.missing==='a'){
+    const cc=q.c*q.c,bb=q.b*q.b,d=cc-bb;
+    steps=[
+      {t:'Formula',      m:`\\[a^2+b^2=c^2\\]`},
+      {t:'Rearrange',    m:`\\[a^2=c^2-b^2\\]`},
+      {t:'Substitute',   m:`\\[a^2=${q.c}^2-${q.b}^2\\]`},
+      {t:'Square',       m:`\\[a^2=${cc}-${bb}\\]`},
+      {t:'Subtract',     m:`\\[a^2=${d}\\]`},
+      {t:'Square root',  m:q.isPerfect?`\\[a=\\sqrt{${d}}=${q.ans}${unitTex}\\]`:`\\[a=\\sqrt{${d}}\\approx${q.ans}${unitTex}\\]`}
+    ];
+  } else {
+    const cc=q.c*q.c,aa=q.a*q.a,d=cc-aa;
+    steps=[
+      {t:'Formula',      m:`\\[a^2+b^2=c^2\\]`},
+      {t:'Rearrange',    m:`\\[b^2=c^2-a^2\\]`},
+      {t:'Substitute',   m:`\\[b^2=${q.c}^2-${q.a}^2\\]`},
+      {t:'Square',       m:`\\[b^2=${cc}-${aa}\\]`},
+      {t:'Subtract',     m:`\\[b^2=${d}\\]`},
+      {t:'Square root',  m:q.isPerfect?`\\[b=\\sqrt{${d}}=${q.ans}${unitTex}\\]`:`\\[b=\\sqrt{${d}}\\approx${q.ans}${unitTex}\\]`}
+    ];
+  }
+  steps.forEach((s,i)=>{
+    setTimeout(()=>{
+      const d=document.createElement('div'); d.className='step';
+      d.innerHTML=`<div class="step-lbl">Step ${i+1} — ${s.t}</div><div>${s.m}</div>`;
+      el('solSteps').appendChild(d); renderMath();
+    },i*420);
+  });
+  playSound('reveal');
+}
+
+// ── BADGES ────────────────────────────────────────────────────────
+const BDEFS=[
+  {id:'first', icon:'⭐',name:'First!',    chk:()=>S.correct>=1},
+  {id:'str3',  icon:'🔥',name:'3 Streak',  chk:()=>S.streak>=3},
+  {id:'str5',  icon:'💥',name:'5 Streak',  chk:()=>S.streak>=5},
+  {id:'clean', icon:'💎',name:'No hints',  chk:()=>S.correct>=1&&S.hintsUsed===0&&S.wrongTries===0},
+  {id:'ten',   icon:'🎯',name:'10 Qs',     chk:()=>S.total>=10},
+  {id:'speed', icon:'⚡',name:'Timer ×5',  chk:()=>S.timerScore>=5},
+  {id:'solo',  icon:'🦅',name:'Solo 5',    chk:()=>S.correct>=5},
+  {id:'schol', icon:'📚',name:'20 Qs',     chk:()=>S.total>=20},
+];
+function checkBadges(){
+  BDEFS.forEach(b=>{ if(!S.badges[b.id]&&b.chk()){ S.badges[b.id]=true; renderBadges(); badgeToast(b); } });
+}
+function renderBadges(){
+  el('badgeGrid').innerHTML=BDEFS.map(b=>`
+    <div class="badge ${S.badges[b.id]?'lit':''}" title="${b.name}">
+      <span>${b.icon}</span><span class="bn">${b.name}</span>
+    </div>`).join('');
+}
+function badgeToast(b){
+  const t=document.createElement('div');
+  t.style.cssText=`position:fixed;bottom:24px;right:24px;z-index:9999;
+    background:linear-gradient(135deg,var(--gold),#ffb700);color:#111;
+    padding:12px 18px;border-radius:14px;font-family:var(--font);font-weight:800;
+    font-size:.9rem;box-shadow:0 8px 24px rgba(255,209,102,.4);animation:slideIn .3s ease`;
+  t.textContent=`🏆 Badge: ${b.name} ${b.icon}`;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),3000);
+}
+
+// ── CONFETTI ──────────────────────────────────────────────────────
+function confetti(){
+  const box=el('confBox');
+  const cols=['#6c63ff','#ff6584','#ffd166','#06d6a0','#4db8ff','#ff9500'];
+  for(let i=0;i<55;i++){
+    const p=document.createElement('div'); p.className='cp';
+    p.style.left=Math.random()*100+'%'; p.style.top='-16px';
+    p.style.width=(6+Math.random()*8)+'px'; p.style.height=(6+Math.random()*8)+'px';
+    p.style.borderRadius=Math.random()>.5?'50%':'2px';
+    p.style.background=cols[ri(0,cols.length-1)];
+    p.style.animationDuration=(1.4+Math.random()*2)+'s';
+    p.style.animationDelay=Math.random()*.5+'s';
+    box.appendChild(p); setTimeout(()=>p.remove(),3600);
+  }
+}
+
+// ── SOUND ─────────────────────────────────────────────────────────
+let audioCtx=null;
+function audio(){ return audioCtx||(audioCtx=new(window.AudioContext||window.webkitAudioContext)()); }
+function playSound(type){
+  if(!S.sound) return;
+  try{
+    const c=audio(),o=c.createOscillator(),g=c.createGain();
+    o.connect(g); g.connect(c.destination); g.gain.setValueAtTime(.14,c.currentTime);
+    if(type==='correct'){
+      o.type='sine'; o.frequency.setValueAtTime(523,c.currentTime);
+      o.frequency.setValueAtTime(659,c.currentTime+.1); o.frequency.setValueAtTime(784,c.currentTime+.2);
+      g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.55); o.start(); o.stop(c.currentTime+.55);
+    } else if(type==='wrong'){
+      o.type='sawtooth'; o.frequency.setValueAtTime(220,c.currentTime); o.frequency.setValueAtTime(160,c.currentTime+.12);
+      g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.3); o.start(); o.stop(c.currentTime+.3);
+    } else if(type==='hint'){
+      o.type='sine'; o.frequency.setValueAtTime(440,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.2); o.start(); o.stop(c.currentTime+.2);
+    } else if(type==='reveal'){
+      o.type='triangle'; o.frequency.setValueAtTime(370,c.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.4); o.start(); o.stop(c.currentTime+.4);
+    }
+  }catch(e){}
+}
+
+// ── TIMER ─────────────────────────────────────────────────────────
+function toggleTimer(){
+  if(S.timerOn){
+    clearInterval(S.timerTick); S.timerOn=false;
+    el('btnTimer').textContent='Start 60s';
+    el('timerDisp').className='timer-num'; el('timerDisp').textContent='60';
+    el('timerRes').textContent=''; return;
+  }
+  S.timerOn=true; S.timerScore=0; S.timerSec=60;
+  el('btnTimer').textContent='Stop';
+  el('timerRes').textContent='';
+  newQ();
+  S.timerTick=setInterval(()=>{
+    S.timerSec--; el('timerDisp').textContent=S.timerSec;
+    if(S.timerSec<=10) el('timerDisp').className='timer-num hot';
+    if(S.timerSec<=0){
+      clearInterval(S.timerTick); S.timerOn=false;
+      el('btnTimer').textContent='Start 60s';
+      el('timerDisp').className='timer-num'; el('timerDisp').textContent='60';
+      el('timerRes').textContent=`✓ ${S.timerScore} correct!`;
+      checkBadges();
+    }
+  },1000);
+}
+
+// ── CHALKBOARD ────────────────────────────────────────────────────
+const CC=el('chalkCanvas');
+const ccx=CC.getContext('2d');
+let chalk={tool:'pen',color:'#ffffff',size:3,drawing:false,x0:0,y0:0,history:[],showGrid:false,lineStart:null};
+
+function resizeChalk(){
+  const w=CC.parentElement.clientWidth||300;
+  const h=Math.max(TC.height||380,300);
+  let saved=null;
+  if(CC.width>0&&CC.height>0) saved=ccx.getImageData(0,0,CC.width,CC.height);
+  CC.width=w; CC.height=h;
+  if(saved) ccx.putImageData(saved,0,0);
+  if(chalk.showGrid) drawChalkGrid();
+}
+
+function drawChalkGrid(){
+  ccx.save(); ccx.strokeStyle='rgba(255,255,255,.07)'; ccx.lineWidth=1;
+  for(let x=0;x<=CC.width;x+=32){ccx.beginPath();ccx.moveTo(x,0);ccx.lineTo(x,CC.height);ccx.stroke();}
+  for(let y=0;y<=CC.height;y+=32){ccx.beginPath();ccx.moveTo(0,y);ccx.lineTo(CC.width,y);ccx.stroke();}
+  ccx.restore();
+}
+function cPos(e){ const r=CC.getBoundingClientRect(),s=e.touches?e.touches[0]:e; return {x:s.clientX-r.left,y:s.clientY-r.top}; }
+function cDown(e){
+  e.preventDefault();
+  const p=cPos(e);
+  chalk.history.push(ccx.getImageData(0,0,CC.width,CC.height));
+  if(chalk.history.length>40) chalk.history.shift();
+  chalk.drawing=true; chalk.x0=p.x; chalk.y0=p.y;
+  if(chalk.tool==='line') chalk.lineStart={x:p.x,y:p.y};
+  if(chalk.tool==='pen'||chalk.tool==='eraser'){ccx.beginPath();ccx.moveTo(p.x,p.y);}
+}
+function cMove(e){
+  if(!chalk.drawing) return; e.preventDefault();
+  const p=cPos(e);
+  if(chalk.tool==='pen'){
+    ccx.lineWidth=chalk.size; ccx.strokeStyle=chalk.color; ccx.lineCap='round'; ccx.lineJoin='round';
+    ccx.lineTo(p.x,p.y); ccx.stroke(); ccx.beginPath(); ccx.moveTo(p.x,p.y);
+  } else if(chalk.tool==='eraser'){
+    ccx.clearRect(p.x-chalk.size*3,p.y-chalk.size*3,chalk.size*6,chalk.size*6);
+  } else if(chalk.tool==='line'&&chalk.lineStart){
+    const snap=chalk.history[chalk.history.length-1];
+    if(snap) ccx.putImageData(snap,0,0);
+    if(chalk.showGrid) drawChalkGrid();
+    ccx.beginPath(); ccx.moveTo(chalk.lineStart.x,chalk.lineStart.y); ccx.lineTo(p.x,p.y);
+    ccx.lineWidth=chalk.size; ccx.strokeStyle=chalk.color; ccx.lineCap='round'; ccx.stroke();
+  }
+}
+function cUp(e){
+  if(!chalk.drawing) return; chalk.drawing=false;
+  if(chalk.tool==='line'&&chalk.lineStart){
+    const p=cPos(e);
+    const snap=chalk.history[chalk.history.length-1];
+    if(snap) ccx.putImageData(snap,0,0);
+    if(chalk.showGrid) drawChalkGrid();
+    ccx.beginPath(); ccx.moveTo(chalk.lineStart.x,chalk.lineStart.y); ccx.lineTo(p.x,p.y);
+    ccx.lineWidth=chalk.size; ccx.strokeStyle=chalk.color; ccx.lineCap='round'; ccx.stroke();
+    chalk.lineStart=null;
+  }
+}
+CC.addEventListener('mousedown',cDown); CC.addEventListener('mousemove',cMove);
+CC.addEventListener('mouseup',cUp);     CC.addEventListener('mouseleave',cUp);
+CC.addEventListener('touchstart',cDown,{passive:false}); CC.addEventListener('touchmove',cMove,{passive:false});
+CC.addEventListener('touchend',cUp);
+
+// Chalk toolbar
+function setChalkTool(t){
+  chalk.tool=t;
+  ['toolPen','toolLine','toolEraser'].forEach(id=>el(id).classList.remove('active'));
+  el({pen:'toolPen',line:'toolLine',eraser:'toolEraser'}[t]).classList.add('active');
+}
+el('toolPen').addEventListener('click',()=>setChalkTool('pen'));
+el('toolLine').addEventListener('click',()=>setChalkTool('line'));
+el('toolEraser').addEventListener('click',()=>setChalkTool('eraser'));
+document.querySelectorAll('.color-dot').forEach(d=>{
+  d.addEventListener('click',()=>{
+    document.querySelectorAll('.color-dot').forEach(x=>x.classList.remove('active'));
+    d.classList.add('active'); chalk.color=d.dataset.c; setChalkTool('pen');
+  });
+});
+el('brushSize').addEventListener('input',()=>{ chalk.size=Math.max(1,Math.min(30,parseInt(el('brushSize').value)||3)); });
+el('chalkGrid').addEventListener('click',()=>{
+  chalk.showGrid=!chalk.showGrid;
+  el('chalkGrid').classList.toggle('active',chalk.showGrid);
+  if(chalk.showGrid) drawChalkGrid();
+  else { ccx.clearRect(0,0,CC.width,CC.height); }
+});
+el('btnUndo').addEventListener('click',()=>{
+  if(chalk.history.length){ ccx.putImageData(chalk.history.pop(),0,0); if(chalk.showGrid) drawChalkGrid(); }
+});
+el('btnClear').addEventListener('click',()=>{
+  chalk.history.push(ccx.getImageData(0,0,CC.width,CC.height));
+  ccx.clearRect(0,0,CC.width,CC.height); if(chalk.showGrid) drawChalkGrid();
+});
+
+// ── WIRING ────────────────────────────────────────────────────────
+el('ansIn').addEventListener('keydown',e=>{ if(e.key==='Enter') checkAns(); });
+el('btnCheck').addEventListener('click',checkAns);
+el('btnNew').addEventListener('click',newQ);
+el('btnHint').addEventListener('click',showHint);
+el('btnSol').addEventListener('click',showSol);
+el('btnTimer').addEventListener('click',toggleTimer);
+el('btnReset').addEventListener('click',()=>{
+  if(!confirm('Reset all progress?')) return;
+  S.score=0;S.correct=0;S.total=0;S.streak=0;
+  Object.keys(S.badges).forEach(k=>delete S.badges[k]);
+  updateScore(); renderBadges(); newQ();
+});
+
+// Difficulty + mode pills
+el('grpDiff').addEventListener('click',e=>{
+  const b=e.target.closest('[data-d]'); if(!b) return;
+  el('grpDiff').querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));
+  b.classList.add('on'); S.diff=b.dataset.d;
+});
+el('grpMode').addEventListener('click',e=>{
+  const b=e.target.closest('[data-m]'); if(!b) return;
+  el('grpMode').querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));
+  b.classList.add('on'); S.mode=b.dataset.m;
+});
+
+// Toggles
+function setSound(on){ S.sound=on; el('btnSound').textContent=on?'🔊':'🔇'; sync(); }
+function setDark(on){
+  S.dark=on; document.body.classList.toggle('light',!on);
+  el('btnDark').textContent=on?'🌙':'☀️'; sync(); drawTri();
+}
+function sync(){
+  function st(id,on){ el(id).className='tog'+(on?' on':''); }
+  st('togSound',S.sound); st('togDark',S.dark); st('togGrid',S.grid); st('togAdapt',S.adaptive);
+}
+el('btnSound').addEventListener('click',()=>setSound(!S.sound));
+el('togSound').addEventListener('click',()=>setSound(!S.sound));
+el('btnDark').addEventListener('click',()=>setDark(!S.dark));
+el('togDark').addEventListener('click',()=>setDark(!S.dark));
+el('togGrid').addEventListener('click',()=>{ S.grid=!S.grid; sync(); drawTri(); });
+el('togAdapt').addEventListener('click',()=>{ S.adaptive=!S.adaptive; sync(); });
+
+// ── NEW QUESTION ──────────────────────────────────────────────────
+function newQ(){ const q=genQ(); loadQ(q); el('ansIn').focus(); }
+
+// ── RESIZE ────────────────────────────────────────────────────────
+function resizeAll(){ resizeTri(); resizeChalk(); }
+window.addEventListener('resize',resizeAll);
+
+// ── UTILITY ──────────────────────────────────────────────────────
+function el(x){ return document.getElementById(x); }
+
+// ── INIT ──────────────────────────────────────────────────────────
+(function init(){
+  renderBadges(); resizeAll(); sync();
+  setTimeout(newQ,350);
+})();
+</script>
+</body>
+</html>
